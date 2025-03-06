@@ -1,5 +1,25 @@
 import pandas as pd
 
+def process_bitcoin_table(table_id, soup, fallback_headers=None):
+
+    # extract table
+    table = soup.find("table", id=table_id)
+
+    # process table
+    headers = [header.text.strip() for header in table.find_all("th")]
+    if not headers and fallback_headers:
+        headers = fallback_headers
+
+    rows = []
+    for row in table.find_all("tr"):
+        cells = row.find_all("td")
+        if cells:
+            rows.append([cell.text.strip() for cell in cells])
+
+    df = pd.DataFrame(rows, columns=headers)
+    return df
+
+# function to process tables by table id
 def clean_data(df):
     df = df[[col for col in df.columns if col not in [None, ""]]]
 
