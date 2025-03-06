@@ -3,9 +3,6 @@ from bs4 import BeautifulSoup
 import pandas as pd
 from helpers import clean_data
 
-# disable scientific notation and use thousand separators
-#pd.options.display.float_format = '{:,.0f}'.format
-
 # Function to process tables by table id
 def process_bitcoin_table(table_id, soup, fallback_headers=None):
 
@@ -24,11 +21,10 @@ def process_bitcoin_table(table_id, soup, fallback_headers=None):
             rows.append([cell.text.strip() for cell in cells])
 
     df = pd.DataFrame(rows, columns=headers)
-
     return df
 
 # make request
-url = "https://bitinfocharts.com/top-100-richest-bitcoin-addresses.html"
+url = "https://bitinfocharts.com/top-100-richest-bitcoin-addresses{}.html"
 response = requests.get(url)
 soup = BeautifulSoup(response.content, "html.parser")
 
@@ -41,6 +37,26 @@ df_tblOne2 = process_bitcoin_table("tblOne2", soup, fallback_headers=headers)
 df = pd.concat([df_tblOne, df_tblOne2], ignore_index=True)
 
 # prepare data
+list_df = []
+
+# Iterate through pages 1 to 3
+for i in range(1, 4):
+    # Adjust URL for the first page (no page number)
+    url = url.format("" if i == 1 else f"-{i}")
+    print(f"Processing {url}")
+
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    df_tblOne = process_bitcoin_table("tblOne", soup)
+    df_tblOne2 = process_bitcoin_table("tblOne2", soup, fallback_headers=headers)
+
+    df_page = pd.concat([df_tblOne, df_tblOne2], ignore_index=True)
+    list_df.append(df_page)
+
+# Concatenate all collected DataFrames
+df = pd.concat(list_df, ignore_index=True)
+
 df = clean_data(df)
 
 # Output results
