@@ -4,7 +4,7 @@ import pandas as pd
 from helpers import clean_data
 
 # disable scientific notation and use thousand separators
-pd.options.display.float_format = '{:,.0f}'.format
+#pd.options.display.float_format = '{:,.0f}'.format
 
 # Function to process tables by table id
 def process_bitcoin_table(table_id, soup, fallback_headers=None):
@@ -25,9 +25,6 @@ def process_bitcoin_table(table_id, soup, fallback_headers=None):
 
     df = pd.DataFrame(rows, columns=headers)
 
-    print(df.head(3))
-    print(df.dtypes)
-
     return df
 
 # make request
@@ -43,6 +40,10 @@ df_tblOne2 = process_bitcoin_table("tblOne2", soup, fallback_headers=headers)
 # Concatenate both tables
 df = pd.concat([df_tblOne, df_tblOne2], ignore_index=True)
 
+# prepare data
+df = clean_data(df)
+
 # Output results
 print("Extracted Table from: " + url)
 print(df)
+print(df.dtypes)

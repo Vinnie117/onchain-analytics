@@ -1,6 +1,6 @@
 import pandas as pd
 
-def clean_data():
+def clean_data(df):
     df = df[[col for col in df.columns if col not in [None, ""]]]
 
     # handle variables
