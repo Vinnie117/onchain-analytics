@@ -18,6 +18,7 @@ list_df = scrape_tables(base_url=base_url,
 # prepare data
 df = pd.concat(list_df, ignore_index=True)
 df = clean_data(df)
+df = df [['Address', 'Short Address', 'BTC', 'USD Value', '% of coins', 'First In', 'Last In', 'Ins', 'First Out', 'Last Out', 'Outs']]
 
 # output results
 print(df)
