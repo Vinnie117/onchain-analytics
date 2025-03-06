@@ -1,6 +1,9 @@
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 
-def process_bitcoin_table(table_id, soup, fallback_headers=None):
+# function to process tables by table id
+def _process_table(table_id, soup, fallback_headers=None):
 
     # extract table
     table = soup.find("table", id=table_id)
@@ -19,7 +22,24 @@ def process_bitcoin_table(table_id, soup, fallback_headers=None):
     df = pd.DataFrame(rows, columns=headers)
     return df
 
-# function to process tables by table id
+def scrape_tables(base_url, table_ids, headers, num_pages, destination):
+
+    # for loop over each single webpage
+    for i in range(1, num_pages + 1):
+        url = base_url.format("" if i == 1 else f"-{i}")
+        print(f"Processing {url}")
+
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        df_tblOne = _process_table(table_ids[0], soup)
+        df_tblOne2 = _process_table(table_ids[1], soup, fallback_headers=headers)
+
+        df_page = pd.concat([df_tblOne, df_tblOne2], ignore_index=True)
+        destination.append(df_page)
+
+    return destination
+
 def clean_data(df):
     df = df[[col for col in df.columns if col not in [None, ""]]]
 
