@@ -9,7 +9,7 @@ const chart = svg.append("g")
 // Load your JSON data
 d3.json("data/rich_list.json").then(data => {
     // Sort by BTC descending, slice top 10
-    const top10 = data.sort((a, b) => b.BTC - a.BTC).slice(0, 10);
+    const top10 = data.sort((a, b) => b.BTC - a.BTC).slice(0, 20);
 
     // X scale
     const x = d3.scaleBand()
@@ -30,7 +30,8 @@ d3.json("data/rich_list.json").then(data => {
         .range([height, 0]);
 
     chart.append("g")
-        .call(d3.axisLeft(y));
+    .call(d3.axisLeft(y).tickFormat(d => `${d / 1000}k`));
+    
 
     // Bars
     chart.selectAll(".bar")
@@ -46,7 +47,7 @@ d3.json("data/rich_list.json").then(data => {
     // Y-axis label
     svg.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", margin.left / 3)
+        .attr("y", margin.left / 5)
         .attr("x", -(height / 2) - margin.top)
         .attr("dy", "1em")
         .style("text-anchor", "middle")
@@ -60,4 +61,43 @@ d3.json("data/rich_list.json").then(data => {
         .style("text-anchor", "middle")
         .style("font-weight", "bold")
         .text("Short Address");
+
+    // Annotation
+    svg.append("text")
+        .attr("x", width + margin.right + margin.left)
+        .attr("y", height + margin.top + 100)
+        .attr("text-anchor", "end")
+        .style("font-size", "12px")
+        .style("font-family", "Arial, sans-serif")
+        .text("Data Source: bitinfocharts.com");
 })
+
+
+document.getElementById('download').addEventListener('click', () => {
+    const svg = document.querySelector('svg');
+    const serializer = new XMLSerializer();
+    let source = serializer.serializeToString(svg);
+
+    // Check for xmlns attribute to avoid duplication
+    if (!source.includes('xmlns="http://www.w3.org/2000/svg"')) {
+        source = source.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+    }
+
+    // Fetch styles from external stylesheet and inject into SVG
+    fetch('frontend/style.css').then(response => response.text()).then(css => {
+        const style = `<style>${css}</style>`;
+        source = source.replace('</svg>', `${style}</svg>`);
+
+        const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'styled_chart.svg';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }).catch(error => console.error('Error loading CSS:', error));
+});
+
+

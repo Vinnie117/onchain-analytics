@@ -1,5 +1,13 @@
 body {
+    margin: 0;
+    padding: 20px;
     font-family: Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+h2 {
+    margin-bottom: 20px;
+    text-align: left;
 }
 
 .bar {
@@ -12,9 +20,39 @@ body {
 
 .axis text {
     font-size: 12px;
+    font-family: Arial, sans-serif;
 }
 
 .axis-label {
     font-size: 14px;
     font-weight: bold;
+    font-family: Arial, sans-serif;
+}
+
+text {
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    display: flex;
+    align-items: flex-start; /* Align button to the top */
+    gap: 20px; /* Space between SVG and button */
+}
+
+.svg-container {
+    flex-grow: 1; /* SVG takes up remaining space */
+    max-width: 1200px;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-top: 20px; /* Add space below the heading */
+}
+
+button {
+    font-size: 12px;
+    cursor: pointer;
 }
