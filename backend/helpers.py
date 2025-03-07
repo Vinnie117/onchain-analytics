@@ -58,3 +58,53 @@ def clean_data(df):
     df[datetime_columns] = df[datetime_columns].apply(pd.to_datetime, errors='coerce')
 
     return df
+
+def make_features(df):
+    df['Days Since First In'] = (pd.Timestamp.now(tz='UTC').normalize() - df['First In'].dt.normalize()).dt.days
+    df['Days Since Last In'] = (pd.Timestamp.now(tz='UTC').normalize() - df['Last In'].dt.normalize()).dt.days
+    df['Days Since Last Out'] = (pd.Timestamp.now(tz='UTC').normalize() - df['Last Out'].dt.normalize()).dt.days
+    df['Days Out Minus In'] = df['Days Since Last Out'] - df['Days Since Last In']
+    df['Address Type'] = df['Short Address'].apply(_categorize_address)
+    df['Txs Difference'] = df['Ins'] - df['Outs']
+    df['Age Band'] = _categorize_days_column(df['Days Since Last Out'], df['Days Since First In'])
+    
+    return df
+
+
+def _categorize_address(address):
+    if address.startswith('1'):
+        return 'Legacy'
+    elif address.startswith('3'):
+        return 'SegWit'
+    elif address.startswith('bc1p'):
+        return 'Taproot'
+    elif address.startswith('bc1'):
+        return 'Bech32'
+    else:
+        return 'Unknown'
+    
+def _categorize_days_column(days_column, fallback_series):
+
+    bins = [
+        -1, 1, 7, 30, 90, 180, 365, 730, 1095, 1825, 2555, 3650, float('inf')
+    ]
+    labels = [
+        '24hr',
+        '1 day - 1 week',
+        '1 week - 1 month',
+        '1 month - 3 months',
+        '3 months - 6 months',
+        '6 months - 12 months',
+        '1 year - 2 years',
+        '2 years - 3 years',
+        '3 years - 5 years',
+        '5 years - 7 years',
+        '7 years - 10 years',
+        '+10 years'
+    ]
+
+    # fill NaN values in the primary series with the values from the fallback series (addresses without Outs)
+    combined_series = days_column.fillna(fallback_series)
+
+    # categorize the days
+    return pd.cut(combined_series, bins=bins, labels=labels, right=True)

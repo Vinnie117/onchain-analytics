@@ -1,5 +1,5 @@
 import pandas as pd
-from helpers import clean_data, scrape_tables
+from helpers import clean_data, scrape_tables, make_features
 
 
 # define request
@@ -18,10 +18,14 @@ list_df = scrape_tables(base_url=base_url,
 # prepare data
 df = pd.concat(list_df, ignore_index=True)
 df = clean_data(df)
-df = df [['Address', 'Short Address', 'BTC', 'USD Value', '% of coins', 'First In', 'Last In', 'Ins', 'First Out', 'Last Out', 'Outs']]
+df = make_features(df)
+df = df [['Address', 'Short Address', 'BTC', 'USD Value', '% of coins', 
+          'First In', 'Last In', 'Ins', 'First Out', 'Last Out', 'Outs',
+          'Days Since First In', 'Days Since Last In', 'Days Since Last Out', 
+          'Address Type', 'Txs Difference', 'Days Out Minus In', 'Age Band']]
 
 # output results
-print(df)
+print(df.head(15))
 print(df.dtypes)
 df.to_csv('data/rich_list.csv', index=False)
 df.to_json('data/rich_list.json', index=False, orient='records')
