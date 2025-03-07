@@ -6,6 +6,11 @@ const svg = d3.select("svg"),
 const chart = svg.append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
+// Create a tooltip div and set initial styles
+const tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
 // Load your JSON data
 d3.json("data/rich_list.json").then(data => {
     // Sort by BTC descending, slice top 10
@@ -30,10 +35,9 @@ d3.json("data/rich_list.json").then(data => {
         .range([height, 0]);
 
     chart.append("g")
-    .call(d3.axisLeft(y).tickFormat(d => `${d / 1000}k`));
+        .call(d3.axisLeft(y).tickFormat(d => `${d / 1000}k`));
     
-
-    // Bars
+    // Bars with tooltips
     chart.selectAll(".bar")
         .data(top10)
         .enter()
@@ -42,7 +46,22 @@ d3.json("data/rich_list.json").then(data => {
         .attr("x", d => x(d["Short Address"]))
         .attr("y", d => y(d.BTC))
         .attr("width", x.bandwidth())
-        .attr("height", d => height - y(d.BTC));
+        .attr("height", d => height - y(d.BTC))
+        .on("mouseover", (event, d) => {
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0.9);
+            tooltip.html(`BTC: ${d.BTC}<br/>% of Coins: ${d["% of coins"].toFixed(2)}%`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 28) + "px");
+        })
+        .on("mouseout", () => {
+            tooltip.transition()
+                .duration(500)
+                .style("opacity", 0);
+        });
+
+
 
     // Y-axis label
     svg.append("text")
@@ -70,20 +89,18 @@ d3.json("data/rich_list.json").then(data => {
         .style("font-size", "12px")
         .style("font-family", "Arial, sans-serif")
         .text("Data Source: bitinfocharts.com");
-})
+});
 
-
+// SVG download code remains the same
 document.getElementById('download').addEventListener('click', () => {
     const svg = document.querySelector('svg');
     const serializer = new XMLSerializer();
     let source = serializer.serializeToString(svg);
 
-    // Check for xmlns attribute to avoid duplication
     if (!source.includes('xmlns="http://www.w3.org/2000/svg"')) {
         source = source.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
     }
 
-    // Fetch styles from external stylesheet and inject into SVG
     fetch('frontend/style.css').then(response => response.text()).then(css => {
         const style = `<style>${css}</style>`;
         source = source.replace('</svg>', `${style}</svg>`);
@@ -99,5 +116,3 @@ document.getElementById('download').addEventListener('click', () => {
         document.body.removeChild(a);
     }).catch(error => console.error('Error loading CSS:', error));
 });
-
-
