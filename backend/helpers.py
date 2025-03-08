@@ -64,9 +64,13 @@ def make_features(df):
     df['Days Since Last In'] = (pd.Timestamp.now(tz='UTC').normalize() - df['Last In'].dt.normalize()).dt.days
     df['Days Since Last Out'] = (pd.Timestamp.now(tz='UTC').normalize() - df['Last Out'].dt.normalize()).dt.days
     df['Days Out Minus In'] = df['Days Since Last Out'] - df['Days Since Last In']
+
     df['Address Type'] = df['Short Address'].apply(_categorize_address)
     df['Txs Difference'] = df['Ins'] - df['Outs']
-    df['Age Band'] = _categorize_days_column(df['Days Since Last Out'], df['Days Since First In'])
+
+    # HODLing without outgoing txs begins with the first tx
+    df['HODL Days'] = df['Days Since Last Out'].fillna(df['Days Since First In']).astype(int)
+    df['Age Band'] = _categorize_days_column(df['HODL Days'])
     
     return df
 
@@ -83,8 +87,7 @@ def _categorize_address(address):
     else:
         return 'Unknown'
     
-def _categorize_days_column(days_column, fallback_series):
-
+def _categorize_days_column(days_column):
     bins = [
         -1, 1, 7, 30, 90, 180, 365, 730, 1095, 1825, 2555, 3650, float('inf')
     ]
@@ -103,8 +106,5 @@ def _categorize_days_column(days_column, fallback_series):
         '+10 years'
     ]
 
-    # fill NaN values in the primary series with the values from the fallback series (addresses without Outs)
-    combined_series = days_column.fillna(fallback_series)
-
-    # categorize the days
-    return pd.cut(combined_series, bins=bins, labels=labels, right=True)
+    # categorize days
+    return pd.cut(days_column, bins=bins, labels=labels, right=True)

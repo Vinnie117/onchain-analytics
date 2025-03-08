@@ -22,7 +22,8 @@ df = make_features(df)
 df = df [['Address', 'Short Address', 'BTC', 'USD Value', '% of coins', 
           'First In', 'Last In', 'Ins', 'First Out', 'Last Out', 'Outs',
           'Days Since First In', 'Days Since Last In', 'Days Since Last Out', 
-          'Address Type', 'Txs Difference', 'Days Out Minus In', 'Age Band']]
+          'Address Type', 'Txs Difference', 'Days Out Minus In', 
+          'HODL Days', 'Age Band']]
 
 # output results
 print(df.head(15))
