@@ -28,5 +28,5 @@ df = df [['Address', 'Short Address', 'BTC', 'USD Value', '% of coins',
 # output results
 print(df.head(15))
 print(df.dtypes)
-df.to_csv('data/rich_list.csv', index=False)
-df.to_json('data/rich_list.json', index=False, orient='records')
+#df.to_csv('data/rich_list.csv', index=False)
+#df.to_json('data/rich_list.json', index=False, orient='records')
