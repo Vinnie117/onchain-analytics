@@ -55,7 +55,7 @@ text {
 
 .svg-container {
     flex-grow: 1; /* SVG takes up remaining space */
-    max-width: 1200px;
+    max-width: 900px;
 }
 
 .button-container {
