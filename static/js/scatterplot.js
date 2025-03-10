@@ -8,8 +8,12 @@ const chartScatter = svgScatter.append("g")
 
 // Clear the input field on page load
 window.onload = () => {
+    const defaultInput = 300;
     document.getElementById('apply-input').value = '';
-    updateScatterPlot("default_rich_list.json", 300); // Load default data
+    updateScatterPlot("default_rich_list.json", defaultInput); // Load default data
+
+    const h2Element = document.getElementById('hodl-heading');
+    h2Element.textContent = `Days HODLed by Richest Addresses (Top ${defaultInput})`;
 };
     
 
@@ -111,7 +115,7 @@ document.getElementById('download-scatter').addEventListener('click', () => {
 const userInput = parseInt(document.getElementById('apply-input').value, 10) || 300;
 
 document.getElementById('apply-button').addEventListener('click', () => {
-    const userInput = document.getElementById('apply-input').value;
+    const userInput = parseInt(document.getElementById('apply-input').value, 10) || 300;
 
     fetch('/run-script', {
         method: 'POST',
@@ -124,6 +128,8 @@ document.getElementById('apply-button').addEventListener('click', () => {
         if (response.ok) {
             console.log('Data updated successfully.');
             updateScatterPlot('rich_list.json', userInput); // Reload the scatter plot with new data
+            const h2Element = document.getElementById('hodl-heading');
+            h2Element.textContent = `Days HODLed by Richest Addresses (Top ${userInput})`;
         } else {
             console.error('Failed to update data.');
         }
