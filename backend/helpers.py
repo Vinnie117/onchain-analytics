@@ -69,8 +69,8 @@ def make_features(df):
     df['Txs Difference'] = df['Ins'] - df['Outs']
 
     # HODLing without outgoing txs begins with the first tx
-    df['HODL Days'] = df['Days Since Last Out'].fillna(df['Days Since First In']).astype(int)
-    df['Age Band'] = _categorize_days_column(df['HODL Days'])
+    df['HODL_Days'] = df['Days Since Last Out'].fillna(df['Days Since First In']).astype(int)
+    df['Age Band'] = _categorize_days_column(df['HODL_Days'])
     
     return df
 
