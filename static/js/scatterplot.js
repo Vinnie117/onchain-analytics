@@ -7,7 +7,7 @@ const chartScatter = svgScatter.append("g")
     .attr("transform", `translate(${marginScatter.left},${marginScatter.top})`);
 
 // Load the JSON data for the scatter plot
-d3.json("data/rich_list.json").then(data => {
+d3.json("/static/data/rich_list.json").then(data => {
     // Sort and slice top 20, now using the correct key "HODL_Days"
     const top = data.sort((a, b) => b.BTC - a.BTC).slice(0, 300);
 
@@ -81,7 +81,7 @@ document.getElementById('download-scatter').addEventListener('click', () => {
         source = source.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
     }
 
-    fetch('frontend/style.css').then(response => response.text()).then(css => {
+    fetch('/static/css/style.css').then(response => response.text()).then(css => {
         const style = `<style>${css}</style>`;
         source = source.replace('</svg>', `${style}</svg>`);
 

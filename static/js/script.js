@@ -12,7 +12,7 @@ const tooltip = d3.select("body").append("div")
     .style("opacity", 0);
 
 // Load your JSON data
-d3.json("data/rich_list.json").then(data => {
+d3.json("/static/data/rich_list.json").then(data => {
     // Sort by BTC descending, slice top 10
     const top10 = data.sort((a, b) => b.BTC - a.BTC).slice(0, 20);
 
@@ -101,7 +101,7 @@ document.getElementById('download').addEventListener('click', () => {
         source = source.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
     }
 
-    fetch('frontend/style.css').then(response => response.text()).then(css => {
+    fetch('/static/css/style.css').then(response => response.text()).then(css => {
         const style = `<style>${css}</style>`;
         source = source.replace('</svg>', `${style}</svg>`);
 
