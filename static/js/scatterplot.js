@@ -72,7 +72,7 @@ function updateScatterPlot(dataFile = 'default_rich_list.json', defaultSize = 30
 
         // Annotation
         svgScatter.append("text")
-            .attr("x", widthScatter)
+            .attr("x", width + margin.right + margin.left)
             .attr("y", heightScatter + marginScatter.top + 100)
             .attr("text-anchor", "end")
             .style("font-size", "12px")

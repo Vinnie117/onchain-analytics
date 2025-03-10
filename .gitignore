@@ -1,5 +1,6 @@
 notes.txt
 .vscode
+static/data/rich_list.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
