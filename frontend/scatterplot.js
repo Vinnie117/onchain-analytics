@@ -9,14 +9,14 @@ const chartScatter = svgScatter.append("g")
 // Load the JSON data for the scatter plot
 d3.json("data/rich_list.json").then(data => {
     // Sort and slice top 20, now using the correct key "HODL_Days"
-    const top20 = data.sort((a, b) => b.BTC - a.BTC).slice(0, 20);
+    const top = data.sort((a, b) => b.BTC - a.BTC).slice(0, 300);
 
     // Check the HODL_Days values
-    console.log("HODL Days values:", top20.map(d => d.HODL_Days));
+    console.log("HODL Days values:", top.map(d => d.HODL_Days));
 
     // X scale for BTC
     const xScatter = d3.scaleLinear()
-        .domain([0, d3.max(top20, d => d.BTC)]).nice()
+        .domain([0, d3.max(top, d => d.BTC)]).nice()
         .range([0, widthScatter]);
 
     chartScatter.append("g")
@@ -24,7 +24,7 @@ d3.json("data/rich_list.json").then(data => {
         .call(d3.axisBottom(xScatter).tickFormat(d3.format(".2s")));
 
     // Y scale for HODL_Days as an integer scale
-    const yMax = d3.max(top20, d => d.HODL_Days);
+    const yMax = d3.max(top, d => d.HODL_Days);
     const yScatter = d3.scaleLinear()
         .domain([0, yMax]).nice()
         .range([heightScatter, 0]);
@@ -34,7 +34,7 @@ d3.json("data/rich_list.json").then(data => {
 
     // Scatter points
     chartScatter.selectAll(".point")
-        .data(top20)
+        .data(top)
         .enter()
         .append("circle")
         .attr("class", "point")
@@ -60,6 +60,15 @@ d3.json("data/rich_list.json").then(data => {
         .style("text-anchor", "middle")
         .style("font-weight", "bold")
         .text("Amount BTC");
+
+    // Annotation
+    svgScatter.append("text")
+        .attr("x", width + margin.right + margin.left)
+        .attr("y", height + margin.top + 100)
+        .attr("text-anchor", "end")
+        .style("font-size", "12px")
+        .style("font-family", "Arial, sans-serif")
+        .text("Data Source: bitinfocharts.com");
 });
 
 
