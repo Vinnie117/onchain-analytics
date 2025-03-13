@@ -41,9 +41,26 @@
         </div>
     </div>
 
+    <h2 id="age-bands-heading">Age Bands by Richest Addresses</h2>
+    <div class="container">
+        <div class="svg-container">
+            <svg id="age-bands-plot" width="900" height="500"></svg>
+        </div>
+        <div class="button-container">
+            <div class="apply-container" style="margin-bottom: 10px;">
+                <button id="age-bands-button">Get</button>
+                <input type="text" id="age-bands-input" placeholder="top xxx richest addresses" style="margin-right: 5px;">
+
+            </div>
+            <div id="age-bands-container" class="message-box"></div>
+            <button id="age-bands-download">Download SVG</button>
+        </div>
+    </div>
+
     <!-- JavaScript Files -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script src="{{ url_for('static', filename='js/scatterplot.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ageBands.js') }}"></script>
 
 </body>
 </html>

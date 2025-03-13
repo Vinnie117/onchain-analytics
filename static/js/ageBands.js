@@ -1,13 +1,23 @@
-const svg = d3.select("svg"),
-    margin = { top: 30, right: 20, bottom: 100, left: 70 },
-    width = +svg.attr("width") - margin.left - margin.right,
-    height = +svg.attr("height") - margin.top - margin.bottom;
+const ageBands_svg = d3.select("#age-bands-plot"),
+marginAgeBands = { top: 30, right: 20, bottom: 100, left: 70 },
+widthAgeBands = +ageBands_svg.attr("width") - marginAgeBands.left - marginAgeBands.right,
+heightAgeBands = +ageBands_svg.attr("height") - marginAgeBands.top - marginAgeBands.bottom;
 
-const chart = svg.append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
+const ageBands_chart = ageBands_svg.append("g")
+.attr("transform", `translate(${marginAgeBands.left},${marginAgeBands.top})`);
+
+// Clear the input field on page load
+window.onload = () => {
+    const defaultInput = 300;
+    document.getElementById('age-bands-input').value = '';
+    updateScatterPlot("default_rich_list.json", defaultInput); // Load default data
+
+    const h2Element = document.getElementById('hodl-heading');
+    h2Element.textContent = `Age Bands by Richest Addresses (Top ${defaultInput})`;
+};
 
 // Create a tooltip div and set initial styles
-const tooltip = d3.select("body").append("div")
+const ageBands_tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
@@ -22,7 +32,7 @@ d3.json("/static/data/default_rich_list.json").then(data => {
         .range([0, width])
         .padding(0.2);
 
-    chart.append("g")
+    ageBands_chart.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x))
         .selectAll("text")
@@ -34,11 +44,11 @@ d3.json("/static/data/default_rich_list.json").then(data => {
         .domain([0, d3.max(top10, d => d.BTC)]).nice()
         .range([height, 0]);
 
-    chart.append("g")
+    ageBands_chart.append("g")
         .call(d3.axisLeft(y).tickFormat(d => `${d / 1000}k`));
     
     // Bars with tooltips
-    chart.selectAll(".bar")
+    ageBands_chart.selectAll(".bar")
         .data(top10)
         .enter()
         .append("rect")
@@ -64,7 +74,7 @@ d3.json("/static/data/default_rich_list.json").then(data => {
 
 
     // Y-axis label
-    svg.append("text")
+    ageBands_svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", margin.left / 5)
         .attr("x", -(height / 2) - margin.top)
@@ -74,7 +84,7 @@ d3.json("/static/data/default_rich_list.json").then(data => {
         .text("BTC Held");
 
     // X-axis label
-    svg.append("text")
+    ageBands_svg.append("text")
         .attr("x", width / 2 + margin.left)
         .attr("y", height + margin.top + 80)
         .style("text-anchor", "middle")
@@ -82,37 +92,11 @@ d3.json("/static/data/default_rich_list.json").then(data => {
         .text("Short Address");
 
     // Annotation
-    svg.append("text")
+    ageBands_svg.append("text")
         .attr("x", width + margin.right + margin.left)
         .attr("y", height + margin.top + 100)
         .attr("text-anchor", "end")
         .style("font-size", "12px")
         .style("font-family", "Arial, sans-serif")
         .text("Data Source: bitinfocharts.com");
-});
-
-// SVG download code remains the same
-document.getElementById('download').addEventListener('click', () => {
-    const svg = document.querySelector('svg');
-    const serializer = new XMLSerializer();
-    let source = serializer.serializeToString(svg);
-
-    if (!source.includes('xmlns="http://www.w3.org/2000/svg"')) {
-        source = source.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
-    }
-
-    fetch('/static/css/style.css').then(response => response.text()).then(css => {
-        const style = `<style>${css}</style>`;
-        source = source.replace('</svg>', `${style}</svg>`);
-
-        const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'styled_chart.svg';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }).catch(error => console.error('Error loading CSS:', error));
 });
