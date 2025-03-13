@@ -3,21 +3,6 @@ marginAgeBands = { top: 30, right: 20, bottom: 100, left: 70 },
 widthAgeBands = +ageBands_svg.attr("width") - marginAgeBands.left - marginAgeBands.right,
 heightAgeBands = +ageBands_svg.attr("height") - marginAgeBands.top - marginAgeBands.bottom;
 
-const labels = [
-    '24hr',
-    '1 day - 1 week',
-    '1 week - 1 month',
-    '1 month - 3 months',
-    '3 months - 6 months',
-    '6 months - 12 months',
-    '1 year - 2 years',
-    '2 years - 3 years',
-    '3 years - 5 years',
-    '5 years - 7 years',
-    '7 years - 10 years',
-    '+10 years'
-];
-
 const ageBands_chart = ageBands_svg.append("g")
 .attr("transform", `translate(${marginAgeBands.left},${marginAgeBands.top})`);
 
@@ -85,7 +70,8 @@ d3.json("/static/data/default_rich_list.json").then(data => {
         .call(d3.axisBottom(x))
         .selectAll("text")
         .attr("transform", "rotate(-40)")
-        .style("text-anchor", "end");
+        .style("text-anchor", "end")
+        .style("font-size", "12px");
 
     // Y-axis (Count of Addresses)
     const y = d3.scaleLinear()
@@ -105,7 +91,20 @@ d3.json("/static/data/default_rich_list.json").then(data => {
         .attr("y", d => y(d.count))
         .attr("width", x.bandwidth())
         .attr("height", d => height - y(d.count))
-        .attr("fill", "steelblue");
+        .attr("fill", "steelblue")
+        .on("mouseover", (event, d) => {
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0.9);
+            tooltip.html(`>Count: ${d.count}`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 28) + "px");
+        })
+        .on("mouseout", () => {
+            tooltip.transition()
+                .duration(500)
+                .style("opacity", 0);
+        });
 
     // Y-axis label
     svg.append("text")
