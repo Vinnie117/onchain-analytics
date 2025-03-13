@@ -145,10 +145,8 @@ document.getElementById('apply-button').addEventListener('click', () => {
                     const message = line.substring(6).trim();
                     console.log('Server message:', message);
 
+                    // Append new message to history
                     messageHistory.push(message);
-                    if (messageHistory.length > 5) {
-                        messageHistory.shift();
-                    }
 
                     messageContainer.innerHTML = messageHistory
                         .map(msg => `<div>${msg}</div>`)
