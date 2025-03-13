@@ -179,6 +179,13 @@ document.getElementById('apply-button').addEventListener('click', () => {
     });
 });
 
+// Enter button
+document.getElementById('apply-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('apply-button').click();
+    }
+});
+
 
 
 
