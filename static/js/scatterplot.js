@@ -3,6 +3,33 @@ const svgScatter = d3.select("#scatter-plot"),
     widthScatter = +svgScatter.attr("width") - marginScatter.left - marginScatter.right,
     heightScatter = +svgScatter.attr("height") - marginScatter.top - marginScatter.bottom;
 
+// Y-axis label
+svgScatter.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", marginScatter.left / 5)
+    .attr("x", -(heightScatter / 2) - marginScatter.top)
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .style("font-weight", "bold")
+    .text("HODL Days");
+
+// X-axis label
+svgScatter.append("text")
+    .attr("x", widthScatter / 2 + marginScatter.left)
+    .attr("y", heightScatter + marginScatter.top + 80)
+    .style("text-anchor", "middle")
+    .style("font-weight", "bold")
+    .text("Amount BTC");
+
+// Annotation
+svgScatter.append("text")
+    .attr("x", width + margin.right + margin.left)
+    .attr("y", heightScatter + marginScatter.top + 100)
+    .attr("text-anchor", "end")
+    .style("font-size", "12px")
+    .style("font-family", "Arial, sans-serif")
+    .text("Data Source: bitinfocharts.com");
+
 const chartScatter = svgScatter.append("g")
     .attr("transform", `translate(${marginScatter.left},${marginScatter.top})`);
   
@@ -46,32 +73,6 @@ function updateScatterPlot(dataFile = 'default_rich_list.json', defaultSize = 30
             .attr("r", 3)
             .style("fill", "steelblue");
 
-        // Y-axis label
-        svgScatter.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", marginScatter.left / 5)
-            .attr("x", -(heightScatter / 2) - marginScatter.top)
-            .attr("dy", "1em")
-            .style("text-anchor", "middle")
-            .style("font-weight", "bold")
-            .text("HODL Days");
-
-        // X-axis label
-        svgScatter.append("text")
-            .attr("x", widthScatter / 2 + marginScatter.left)
-            .attr("y", heightScatter + marginScatter.top + 80)
-            .style("text-anchor", "middle")
-            .style("font-weight", "bold")
-            .text("Amount BTC");
-
-        // Annotation
-        svgScatter.append("text")
-            .attr("x", width + margin.right + margin.left)
-            .attr("y", heightScatter + marginScatter.top + 100)
-            .attr("text-anchor", "end")
-            .style("font-size", "12px")
-            .style("font-family", "Arial, sans-serif")
-            .text("Data Source: bitinfocharts.com");
     });
 }
 
