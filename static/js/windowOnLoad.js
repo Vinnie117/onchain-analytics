@@ -8,10 +8,10 @@ window.onload = () => {
     const h2Element = document.getElementById('hodl-heading');
     h2Element.textContent = `Days HODLed by Richest Addresses (Top ${defaultInput})`;
 
+    // Age Bands plot
     const defaultInputAgeBands = 300;
     document.getElementById('age-bands-input').value = '';
-    //updateScatterPlot("default_rich_list.json", defaultInputAgeBands); // Load default data
-
+    updateAgeBandsPlot("default_rich_list.json", defaultInputAgeBands);
     const h2AgeBands= document.getElementById('age-bands-heading');
     h2AgeBands.textContent = `Age Bands by Richest Addresses (Top ${defaultInputAgeBands})`;
 };

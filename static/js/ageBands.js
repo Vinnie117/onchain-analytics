@@ -13,109 +13,111 @@ const ageBands_tooltip = d3.select("body").append("div")
     .style("opacity", 0);
 
 // Load your JSON data
-d3.json("/static/data/default_rich_list.json").then(data => {
-    
-    // Age bands labels (explicit definition for consistent ordering)
-    const labels = [
-        '24hr', '1 day - 1 week', '1 month - 3 months', '3 months - 6 months',
-        '6 months - 12 months', '1 year - 2 years', '2 years - 3 years',
-        '3 years - 5 years', '5 years - 7 years', '7 years - 10 years', '+10 years'
-    ];
+function updateAgeBandsPlot(dataFile = 'default_rich_list.json', topX = 300) {
 
-    // Compute counts per Age Band
-    const ageBandCounts = labels.reduce((acc, label) => {
-        acc[label] = 0;
-        return acc;
-    }, {});
+    d3.json(`/static/data/${dataFile}`).then(data => {
 
-    data.forEach(entry => {
-        const band = entry["Age Band"];
-        if (labels.includes(band)) {
-            ageBandCounts[band] = (ageBandCounts[band] || 0) + 1;
-        }
-    });
+        // Age bands labels (explicit definition for consistent ordering)
+        const labels = [
+            '24hr', '1 day - 1 week', '1 month - 3 months', '3 months - 6 months',
+            '6 months - 12 months', '1 year - 2 years', '2 years - 3 years',
+            '3 years - 5 years', '5 years - 7 years', '7 years - 10 years', '+10 years'
+        ];
 
-    const countData = labels.map(band => ({ band, count: ageBandCounts[band] || 0 }));
+        // Compute counts per Age Band
+        const ageBandCounts = labels.reduce((acc, label) => {
+            acc[label] = 0;
+            return acc;
+        }, {});
 
-    // Set plot dimensions
-    const margin = { top: 30, right: 20, bottom: 150, left: 50 },
-          width = 800 - margin.left - margin.right,
-          height = 500 - margin.top - margin.bottom;
-
-    // Append SVG container
-    const svg = d3.select("#age-bands-plot")
-        .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
-
-    // X-axis (Age Bands)
-    const x = d3.scaleBand()
-        .domain(countData.map(d => d.band))
-        .range([0, width])
-        .padding(0.2);
-
-    svg.append("g")
-        .attr("transform", `translate(0, ${height})`)
-        .call(d3.axisBottom(x))
-        .selectAll("text")
-        .attr("transform", "rotate(-40)")
-        .style("text-anchor", "end")
-        .style("font-size", "12px");
-
-    // Y-axis (Count of Addresses)
-    const y = d3.scaleLinear()
-        .domain([0, d3.max(countData, d => d.count)])
-        .range([height, 0]);
-
-    svg.append("g")
-        .call(d3.axisLeft(y))
-        .style("font-size", "12px");
-
-    // Bars (Age Bands counts)
-    svg.selectAll(".bar")
-        .data(countData)
-        .enter()
-        .append("rect")
-        .attr("class", "bar")
-        .attr("x", d => x(d.band))
-        .attr("y", d => y(d.count))
-        .attr("width", x.bandwidth())
-        .attr("height", d => height - y(d.count))
-        .attr("fill", "steelblue")
-        .on("mouseover", (event, d) => {
-            ageBands_tooltip.transition()
-                .duration(200)
-                .style("opacity", 0.9);
-                ageBands_tooltip.html(`Count: ${d.count}`)
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 28) + "px");
-        })
-        .on("mouseout", () => {
-            ageBands_tooltip.transition()
-                .duration(500)
-                .style("opacity", 0);
+        data.forEach(entry => {
+            const band = entry["Age Band"];
+            if (labels.includes(band)) {
+                ageBandCounts[band] = (ageBandCounts[band] || 0) + 1;
+            }
         });
 
-    // Y-axis label
-    svg.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -margin.left)
-        .attr("x", -(height / 2))
-        .attr("dy", "-1em")
-        .style("text-anchor", "middle")
-        .style("font-weight", "bold")
-        .text("Number of Addresses");
+        const countData = labels.map(band => ({ band, count: ageBandCounts[band] || 0 }));
 
-    // X-axis label
-    svg.append("text")
-        .attr("x", width / 2)
-        .attr("y", height + margin.bottom - 50)
-        .attr("text-anchor", "middle")
-        .style("font-weight", "bold")
-        .text("Age Bands");
-});
+        // Set plot dimensions
+        const margin = { top: 30, right: 20, bottom: 150, left: 50 },
+            width = 800 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+        // Append SVG container
+        const svg = d3.select("#age-bands-plot")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // X-axis (Age Bands)
+        const x = d3.scaleBand()
+            .domain(countData.map(d => d.band))
+            .range([0, width])
+            .padding(0.2);
+
+        svg.append("g")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .attr("transform", "rotate(-40)")
+            .style("text-anchor", "end")
+            .style("font-size", "12px");
+
+        // Y-axis (Count of Addresses)
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(countData, d => d.count)])
+            .range([height, 0]);
+
+        svg.append("g")
+            .call(d3.axisLeft(y))
+            .style("font-size", "12px");
+
+        // Bars (Age Bands counts)
+        svg.selectAll(".bar")
+            .data(countData)
+            .enter()
+            .append("rect")
+            .attr("class", "bar")
+            .attr("x", d => x(d.band))
+            .attr("y", d => y(d.count))
+            .attr("width", x.bandwidth())
+            .attr("height", d => height - y(d.count))
+            .attr("fill", "steelblue")
+            .on("mouseover", (event, d) => {
+                ageBands_tooltip.transition()
+                    .duration(200)
+                    .style("opacity", 0.9);
+                    ageBands_tooltip.html(`Count: ${d.count}`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", () => {
+                ageBands_tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+
+        // Y-axis label
+        svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left)
+            .attr("x", -(height / 2))
+            .attr("dy", "-1em")
+            .style("text-anchor", "middle")
+            .style("font-weight", "bold")
+            .text("Number of Addresses");
+
+        // X-axis label
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", height + margin.bottom - 50)
+            .attr("text-anchor", "middle")
+            .style("font-weight", "bold")
+            .text("Age Bands");
+})};
 
 
 document.getElementById('age-bands-download').addEventListener('click', () => {
@@ -142,3 +144,5 @@ document.getElementById('age-bands-download').addEventListener('click', () => {
         document.body.removeChild(a);
     }).catch(error => console.error('Error loading CSS:', error));
 });
+
+
