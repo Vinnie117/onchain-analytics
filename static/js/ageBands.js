@@ -70,7 +70,8 @@ d3.json("/static/data/default_rich_list.json").then(data => {
         .range([height, 0]);
 
     svg.append("g")
-        .call(d3.axisLeft(y));
+        .call(d3.axisLeft(y))
+        .style("font-size", "12px");
 
     // Bars (Age Bands counts)
     svg.selectAll(".bar")
@@ -84,15 +85,15 @@ d3.json("/static/data/default_rich_list.json").then(data => {
         .attr("height", d => height - y(d.count))
         .attr("fill", "steelblue")
         .on("mouseover", (event, d) => {
-            tooltip.transition()
+            ageBands_tooltip.transition()
                 .duration(200)
                 .style("opacity", 0.9);
-            tooltip.html(`Count: ${d.count}`)
+                ageBands_tooltip.html(`Count: ${d.count}`)
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 28) + "px");
         })
         .on("mouseout", () => {
-            tooltip.transition()
+            ageBands_tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
         });
