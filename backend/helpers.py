@@ -28,6 +28,7 @@ def scrape_tables(base_url, table_ids, headers, num_pages, destination):
     for i in range(1, num_pages + 1):
         url = base_url.format("" if i == 1 else f"-{i}")
         print(f"Processing {url}")
+        yield f"Processing {url}"
 
         response = requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")

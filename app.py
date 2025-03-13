@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response, stream_with_context 
 import subprocess
 from backend.scrape import scrape_data
 
@@ -15,11 +15,11 @@ def run_script():
     user_input = data.get('user_input', '300')  # Default to 300 if no input
 
     try:
-        scrape_data(user_input=user_input)
-        return jsonify({'message': 'Data updated successfully.'}), 200
-            
+        # Stream the data scraping process as server-sent events (SSE)
+        return Response(stream_with_context(scrape_data(user_input)),
+                        content_type='text/event-stream')
     except Exception as e:
-        return jsonify({'message': 'Error occurred while scraping data: ' + str(e)}), 500
+        return f"data: Error occurred: {str(e)}\n\n", 500
 
 if __name__ == '__main__':
     app.run(debug=True)

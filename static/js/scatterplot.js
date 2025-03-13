@@ -53,7 +53,7 @@ function updateScatterPlot(dataFile = 'default_rich_list.json', defaultSize = 30
             .attr("class", "point")
             .attr("cx", d => xScatter(d.BTC))
             .attr("cy", d => yScatter(d.HODL_Days))
-            .attr("r", 5)
+            .attr("r", 3)
             .style("fill", "steelblue");
 
         // Y-axis label
@@ -112,27 +112,83 @@ document.getElementById('download-scatter').addEventListener('click', () => {
 });
 
 // Handle "Apply" button click
-const userInput = parseInt(document.getElementById('apply-input').value, 10) || 300;
-
 document.getElementById('apply-button').addEventListener('click', () => {
     const userInput = parseInt(document.getElementById('apply-input').value, 10) || 300;
 
+    const messageContainer = document.getElementById('message-container');
+    messageContainer.textContent = `Starting data fetch for the top ${userInput} richest addresses...`;
+    messageContainer.style.color = '#333';
+
+    const messageHistory = [];
+
+    if (window.abortController) {
+        window.abortController.abort();
+    }
+    window.abortController = new AbortController();
+
     fetch('/run-script', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_input: userInput }),
-    })
-    .then(response => {
-        if (response.ok) {
-            console.log('Data updated successfully.');
-            updateScatterPlot('rich_list.json', userInput); // Reload the scatter plot with new data
-            const h2Element = document.getElementById('hodl-heading');
-            h2Element.textContent = `Days HODLed by Richest Addresses (Top ${userInput})`;
-        } else {
-            console.error('Failed to update data.');
+        signal: window.abortController.signal,
+    }).then(async (response) => {
+        if (!response.ok) {
+            messageContainer.textContent = `Error: ${response.statusText}`;
+            messageContainer.style.color = 'red';
+            return;
         }
-    })
-    .catch(error => console.error('Error:', error));
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+
+            const lines = buffer.split('\n\n');
+            buffer = lines.pop();
+
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const message = line.substring(6).trim();
+                    console.log('Server message:', message);
+
+                    messageHistory.push(message);
+                    if (messageHistory.length > 5) {
+                        messageHistory.shift();
+                    }
+
+                    messageContainer.innerHTML = messageHistory
+                        .map(msg => `<div>${msg}</div>`)
+                        .join('');
+
+                    if (message.includes('completed')) {
+                        messageContainer.style.color = 'green';
+                        
+                        // Trigger the old functionality when completed
+                        updateScatterPlot('rich_list.json', userInput); // Update scatter plot
+                        const h2Element = document.getElementById('hodl-heading');
+                        h2Element.textContent = `Days HODLed by Richest Addresses (Top ${userInput})`;
+                    } else if (message.includes('Error')) {
+                        messageContainer.style.color = 'red';
+                    } else {
+                        messageContainer.style.color = '#333';
+                    }
+
+                    messageContainer.scrollTop = messageContainer.scrollHeight;
+                }
+            }
+        }
+    }).catch((error) => {
+        if (error.name !== 'AbortError') {
+            messageContainer.textContent = 'An error occurred while streaming data.';
+            messageContainer.style.color = 'red';
+        }
+    });
 });
+
+
+
+
