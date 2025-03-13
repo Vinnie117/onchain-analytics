@@ -13,7 +13,7 @@ const ageBands_tooltip = d3.select("body").append("div")
     .style("opacity", 0);
 
 // Load your JSON data
-function updateAgeBandsPlot(dataFile = 'default_rich_list.json', topX = 300) {
+function updateAgeBandsPlot(dataFile = 'default_rich_list.json', topX) {
 
     d3.json(`/static/data/${dataFile}`).then(data => {
 
@@ -24,20 +24,24 @@ function updateAgeBandsPlot(dataFile = 'default_rich_list.json', topX = 300) {
             '3 years - 5 years', '5 years - 7 years', '7 years - 10 years', '+10 years'
         ];
 
-        // Compute counts per Age Band
+        // Sort data by BTC value (descending) and slice to topX entries
+        const topData = data.sort((a, b) => b.BTC - a.BTC).slice(0, topX);
+        console.log("Number of data points for age band bar plot:", topData.length);
+
+        // Count occurrences of each Age Band within the top X entries
         const ageBandCounts = labels.reduce((acc, label) => {
             acc[label] = 0;
             return acc;
         }, {});
 
-        data.forEach(entry => {
+        topData.forEach(entry => {
             const band = entry["Age Band"];
             if (labels.includes(band)) {
-                ageBandCounts[band] = (ageBandCounts[band] || 0) + 1;
+                ageBandCounts[band] += 1;
             }
         });
 
-        const countData = labels.map(band => ({ band, count: ageBandCounts[band] || 0 }));
+        const countData = labels.map(band => ({band,count: ageBandCounts[band]}));
 
         // Set plot dimensions
         const margin = { top: 30, right: 20, bottom: 150, left: 50 },

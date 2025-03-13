@@ -9,7 +9,7 @@ window.onload = () => {
     h2Element.textContent = `Days HODLed by Richest Addresses (Top ${defaultInput})`;
 
     // Age Bands plot
-    const defaultInputAgeBands = 300;
+    const defaultInputAgeBands = 200;
     document.getElementById('age-bands-input').value = '';
     updateAgeBandsPlot("default_rich_list.json", defaultInputAgeBands);
     const h2AgeBands= document.getElementById('age-bands-heading');
