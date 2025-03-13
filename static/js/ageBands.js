@@ -3,6 +3,34 @@ marginAgeBands = { top: 30, right: 20, bottom: 100, left: 70 },
 widthAgeBands = +ageBands_svg.attr("width") - marginAgeBands.left - marginAgeBands.right,
 heightAgeBands = +ageBands_svg.attr("height") - marginAgeBands.top - marginAgeBands.bottom;
 
+// Append Y-axis label
+ageBands_svg.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", marginAgeBands.left / 3 + 20) // Adjusted for visibility
+    .attr("x", -(heightAgeBands / 2 +20))
+    .attr("dy", "-1em")
+    .style("text-anchor", "middle")
+    .style("font-weight", "bold")
+    .text("Number of Addresses");
+
+// Append X-axis label
+ageBands_svg.append("text")
+    .attr("x", widthAgeBands / 2 + marginAgeBands.left)
+    .attr("y", heightAgeBands + marginAgeBands.bottom + 20) // Adjusted
+    .attr("text-anchor", "middle")
+    .style("font-weight", "bold")
+    .text("Age Bands");
+
+// Annotation
+ageBands_svg.append("text")
+    .attr("x", widthAgeBands + marginAgeBands.right + marginAgeBands.left) // Adjusted
+    .attr("y", heightAgeBands + marginAgeBands.top + 100) // Adjusted
+    .attr("text-anchor", "end")
+    .style("font-size", "12px")
+    .style("font-family", "Arial, sans-serif")
+    .text("Data Source: bitinfocharts.com");
+
+
 const ageBands_chart = ageBands_svg.append("g")
 .attr("transform", `translate(${marginAgeBands.left},${marginAgeBands.top})`);
 
@@ -16,10 +44,12 @@ const ageBands_tooltip = d3.select("body").append("div")
 function updateAgeBandsPlot(dataFile = 'default_rich_list.json', topX) {
 
     d3.json(`/static/data/${dataFile}`).then(data => {
+        // Clear existing elements
+        ageBands_chart.selectAll("*").remove();
 
         // Age bands labels (explicit definition for consistent ordering)
         const labels = [
-            '24hr', '1 day - 1 week', '1 month - 3 months', '3 months - 6 months',
+            '24hr', '1 day - 1 week', '1 week - 1 month', '1 month - 3 months', '3 months - 6 months',
             '6 months - 12 months', '1 year - 2 years', '2 years - 3 years',
             '3 years - 5 years', '5 years - 7 years', '7 years - 10 years', '+10 years'
         ];
@@ -43,44 +73,31 @@ function updateAgeBandsPlot(dataFile = 'default_rich_list.json', topX) {
 
         const countData = labels.map(band => ({band,count: ageBandCounts[band]}));
 
-        // Set plot dimensions
-        const margin = { top: 30, right: 20, bottom: 150, left: 50 },
-            width = 800 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
-
-        // Append SVG container
-        const svg = d3.select("#age-bands-plot")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
-
         // X-axis (Age Bands)
         const x = d3.scaleBand()
             .domain(countData.map(d => d.band))
-            .range([0, width])
+            .range([0, widthAgeBands])
             .padding(0.2);
 
-        svg.append("g")
-            .attr("transform", `translate(0, ${height})`)
+        ageBands_chart.append("g")
+            .attr("transform", `translate(0, ${heightAgeBands})`)
             .call(d3.axisBottom(x))
             .selectAll("text")
-            .attr("transform", "rotate(-40)")
+            .attr("transform", "rotate(-25)")
             .style("text-anchor", "end")
             .style("font-size", "12px");
 
         // Y-axis (Count of Addresses)
         const y = d3.scaleLinear()
             .domain([0, d3.max(countData, d => d.count)])
-            .range([height, 0]);
+            .range([heightAgeBands, 0]);
 
-        svg.append("g")
+        ageBands_chart.append("g")
             .call(d3.axisLeft(y))
             .style("font-size", "12px");
 
         // Bars (Age Bands counts)
-        svg.selectAll(".bar")
+        ageBands_chart.selectAll(".bar")
             .data(countData)
             .enter()
             .append("rect")
@@ -94,7 +111,7 @@ function updateAgeBandsPlot(dataFile = 'default_rich_list.json', topX) {
                 ageBands_tooltip.transition()
                     .duration(200)
                     .style("opacity", 0.9);
-                    ageBands_tooltip.html(`Count: ${d.count}`)
+                ageBands_tooltip.html(`Count: ${d.count}`)
                     .style("left", (event.pageX + 10) + "px")
                     .style("top", (event.pageY - 28) + "px");
             })
@@ -104,23 +121,10 @@ function updateAgeBandsPlot(dataFile = 'default_rich_list.json', topX) {
                     .style("opacity", 0);
             });
 
-        // Y-axis label
-        svg.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", -margin.left)
-            .attr("x", -(height / 2))
-            .attr("dy", "-1em")
-            .style("text-anchor", "middle")
-            .style("font-weight", "bold")
-            .text("Number of Addresses");
+        //ageBands_svg.selectAll(".data-label").remove();
 
-        // X-axis label
-        svg.append("text")
-            .attr("x", width / 2)
-            .attr("y", height + margin.bottom - 50)
-            .attr("text-anchor", "middle")
-            .style("font-weight", "bold")
-            .text("Age Bands");
+        // Y-axis label
+
 })};
 
 
@@ -149,4 +153,81 @@ document.getElementById('age-bands-download').addEventListener('click', () => {
     }).catch(error => console.error('Error loading CSS:', error));
 });
 
+
+document.getElementById('age-bands-button').addEventListener('click', () => {
+    const userInput = parseInt(document.getElementById('age-bands-input').value, 10) || 300;
+
+    const messageContainer = document.getElementById('age-bands-container');
+    messageContainer.textContent = `Starting data fetch for the top ${userInput} richest addresses...`;
+    messageContainer.style.color = '#333';
+
+    const messageHistory = [];
+
+    if (window.abortController) {
+        window.abortController.abort();
+    }
+    window.abortController = new AbortController();
+
+    fetch('/run-script', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_input: userInput }),
+        signal: window.abortController.signal,
+    }).then(async (response) => {
+        if (!response.ok) {
+            messageContainer.textContent = `Error: ${response.statusText}`;
+            messageContainer.style.color = 'red';
+            return;
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+
+            const lines = buffer.split('\n\n');
+            buffer = lines.pop();
+
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const message = line.substring(6).trim();
+                    console.log('Server message:', message);
+
+                    messageHistory.push(message);
+                    if (messageHistory.length > 5) {
+                        messageHistory.shift();
+                    }
+
+                    messageContainer.innerHTML = messageHistory
+                        .map(msg => `<div>${msg}</div>`)
+                        .join('');
+
+                    if (message.includes('completed')) {
+                        messageContainer.style.color = 'green';
+                        
+                        // Trigger the old functionality when completed
+                        updateAgeBandsPlot('rich_list.json', userInput); // Update scatter plot
+                        const h2AgeBands = document.getElementById('age-bands-heading');
+                        h2AgeBands.textContent = `Age Bands by Richest Addresses (Top ${userInput})`;
+                    } else if (message.includes('Error')) {
+                        messageContainer.style.color = 'red';
+                    } else {
+                        messageContainer.style.color = '#333';
+                    }
+
+                    messageContainer.scrollTop = messageContainer.scrollHeight;
+                }
+            }
+        }
+    }).catch((error) => {
+        if (error.name !== 'AbortError') {
+            messageContainer.textContent = 'An error occurred while streaming data.';
+            messageContainer.style.color = 'red';
+        }
+    });
+});
 
