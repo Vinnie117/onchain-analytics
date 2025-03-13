@@ -125,3 +125,29 @@ d3.json("/static/data/default_rich_list.json").then(data => {
         .style("font-weight", "bold")
         .text("Age Bands");
 });
+
+
+document.getElementById('age-bands-download').addEventListener('click', () => {
+    const svg = document.querySelector('#age-bands-plot');
+    const serializer = new XMLSerializer();
+    let source = serializer.serializeToString(svg);
+
+    if (!source.includes('xmlns="http://www.w3.org/2000/svg"')) {
+        source = source.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+    }
+
+    fetch('/static/css/style.css').then(response => response.text()).then(css => {
+        const style = `<style>${css}</style>`;
+        source = source.replace('</svg>', `${style}</svg>`);
+
+        const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'age_bands.svg';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }).catch(error => console.error('Error loading CSS:', error));
+});
