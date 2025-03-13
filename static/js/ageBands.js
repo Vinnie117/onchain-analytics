@@ -6,15 +6,6 @@ heightAgeBands = +ageBands_svg.attr("height") - marginAgeBands.top - marginAgeBa
 const ageBands_chart = ageBands_svg.append("g")
 .attr("transform", `translate(${marginAgeBands.left},${marginAgeBands.top})`);
 
-// Clear the input field on page load
-window.onload = () => {
-    const defaultInput = 300;
-    document.getElementById('age-bands-input').value = '';
-    updateScatterPlot("default_rich_list.json", defaultInput); // Load default data
-
-    const h2Element = document.getElementById('hodl-heading');
-    h2Element.textContent = `Age Bands by Richest Addresses (Top ${defaultInput})`;
-};
 
 // Create a tooltip div and set initial styles
 const ageBands_tooltip = d3.select("body").append("div")
@@ -96,7 +87,7 @@ d3.json("/static/data/default_rich_list.json").then(data => {
             tooltip.transition()
                 .duration(200)
                 .style("opacity", 0.9);
-            tooltip.html(`>Count: ${d.count}`)
+            tooltip.html(`Count: ${d.count}`)
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 28) + "px");
         })

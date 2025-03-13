@@ -5,17 +5,7 @@ const svgScatter = d3.select("#scatter-plot"),
 
 const chartScatter = svgScatter.append("g")
     .attr("transform", `translate(${marginScatter.left},${marginScatter.top})`);
-
-// Clear the input field on page load
-window.onload = () => {
-    const defaultInput = 300;
-    document.getElementById('apply-input').value = '';
-    updateScatterPlot("default_rich_list.json", defaultInput); // Load default data
-
-    const h2Element = document.getElementById('hodl-heading');
-    h2Element.textContent = `Days HODLed by Richest Addresses (Top ${defaultInput})`;
-};
-    
+  
 
 // Function to update the scatter plot
 function updateScatterPlot(dataFile = 'default_rich_list.json', defaultSize = 300) {
