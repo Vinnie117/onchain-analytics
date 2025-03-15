@@ -36,6 +36,10 @@ def scrape_tables(base_url, table_ids, headers, num_pages, destination):
         logger.info(f"Processing {url}")
         yield f"Processing {url}"
 
+        agent = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+
+        response = requests.get(url, headers=agent)
+
         response = requests.get(url)
         logger.info('response is: ' + str(response))
         soup = BeautifulSoup(response.content, "html.parser")
