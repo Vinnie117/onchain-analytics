@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from backend.logger import logger
 
 # function to process tables by table id
 def _process_table(table_id, soup, fallback_headers=None):
@@ -27,13 +28,13 @@ def scrape_tables(base_url, table_ids, headers, num_pages, destination):
     # for loop over each single webpage
     for i in range(1, num_pages + 1):
         url = base_url.format("" if i == 1 else f"-{i}")
-        print(f"Processing {url}")
+        logger.info(f"Processing {url}")
         yield f"Processing {url}"
 
         response = requests.get(url)
-        print('response is: ' + str(response))
+        logger.info('response is: ' + str(response))
         soup = BeautifulSoup(response.content, "html.parser")
-        print('soup is: ' + str(soup))
+        logger.info('soup is: ' + str(soup))
 
         df_tblOne = _process_table(table_ids[0], soup)
         df_tblOne2 = _process_table(table_ids[1], soup, fallback_headers=headers)

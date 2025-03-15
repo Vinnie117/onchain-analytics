@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request, jsonify, Response, stream_with_context 
-import subprocess
+from flask import Flask, render_template, request, Response, stream_with_context 
 from backend.scrape import scrape_data
+from backend.logger import logger  
 
 
 app = Flask(__name__)
+app.logger.handlers = logger.handlers
+app.logger.setLevel(logger.level)
 
 @app.route('/')
 def index():
