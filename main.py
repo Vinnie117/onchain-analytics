@@ -36,18 +36,14 @@ async def run_script(request: Request):
 
 
 
+
 @app.post('/server-run-script')
-async def server_run_script(request: Request):
+async def run_async_script(request: Request):
     data = await request.json()
     user_input = data.get('user_input', '300')
 
-    async def event_stream():
-        try:
-            async for message in server_scrape_data(user_input):
-                yield message
-        except Exception as e:
-            yield f"data: Error occurred: {str(e)}\n\n"
+    return StreamingResponse(server_scrape_data(user_input), media_type='text/event-stream')
 
-    return StreamingResponse(event_stream(), media_type='text/event-stream')
+
 
 

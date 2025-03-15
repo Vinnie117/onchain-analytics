@@ -2,6 +2,11 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from backend.logger import logger
+from pydoll.browser.chrome import Chrome
+from pydoll.browser.options import Options
+import tempfile
+import shutil
+import asyncio
 
 # function to process tables by table id
 def _process_table(table_id, soup, fallback_headers=None):
@@ -44,6 +49,52 @@ def scrape_tables(base_url, table_ids, headers, num_pages, destination):
 
     return destination
 
+
+
+async def server_scrape_tables(base_url, table_ids, headers, num_pages, destination):
+
+    options = Options()
+    options.binary_location = r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'
+
+    # Create a temporary directory explicitly
+    temp_dir = tempfile.mkdtemp()
+
+    # Assign this temporary directory to the browser's user-data-dir
+    options.add_argument(f'--user-data-dir={temp_dir}')
+
+    browser = Chrome(options=options)
+    await browser.start()
+
+    try:
+        for i in range(1, num_pages + 1):
+            page = await browser.get_page()
+            url = base_url.format("" if i == 1 else f"-{i}")
+            await page.go_to(url)
+
+            # Yield progress update
+            yield f"data: Processing {url}\n\n"
+
+            html = await page.page_source
+            soup = BeautifulSoup(html, "html.parser")
+            
+
+            df_tblOne = _process_table(table_ids[0], soup)
+            df_tblOne2 = _process_table(table_ids[1], soup, fallback_headers=headers)
+            df_page = pd.concat([df_tblOne, df_tblOne2], ignore_index=True)
+            destination.append(df_page)
+
+            
+
+    finally:
+        await asyncio.sleep(2) 
+        await browser.stop()
+        shutil.rmtree(temp_dir, ignore_errors=True)  # Clean up explicitly
+    
+
+    yield "data: Scraping process completed.\n\n"
+   
+
+
 def clean_data(df):
     df = df[[col for col in df.columns if col not in [None, ""]]]
 
@@ -64,6 +115,14 @@ def clean_data(df):
     return df
 
 def make_features(df):
+
+    try:
+        df['First In'] = df['First In'].dt.tz_localize('UTC') 
+        df['Last In'] = df['Last In'].dt.tz_localize('UTC') 
+        df['Last Out'] = df['Last Out'].dt.tz_localize('UTC') 
+    except:
+        pass
+
     df['Days Since First In'] = (pd.Timestamp.now(tz='UTC').normalize() - df['First In'].dt.normalize()).dt.days
     df['Days Since Last In'] = (pd.Timestamp.now(tz='UTC').normalize() - df['Last In'].dt.normalize()).dt.days
     df['Days Since Last Out'] = (pd.Timestamp.now(tz='UTC').normalize() - df['Last Out'].dt.normalize()).dt.days

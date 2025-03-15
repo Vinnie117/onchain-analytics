@@ -168,7 +168,7 @@ document.getElementById('age-bands-button').addEventListener('click', () => {
     }
     window.abortController = new AbortController();
 
-    fetch('/run-script', {
+    fetch('/server-run-script', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_input: userInput }),
