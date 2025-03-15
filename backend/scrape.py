@@ -1,6 +1,5 @@
 import math
 import pandas as pd
-from flask import Response, stream_with_context
 from backend.helpers import clean_data, scrape_tables, make_features
 
 def scrape_data(user_input):
@@ -32,3 +31,4 @@ def scrape_data(user_input):
     # Output results
     df.to_json('static/data/rich_list.json', index=False, orient='records')
     yield "data: Data scraping completed successfully.\n\n"
+
