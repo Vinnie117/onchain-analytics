@@ -31,7 +31,9 @@ def scrape_tables(base_url, table_ids, headers, num_pages, destination):
         yield f"Processing {url}"
 
         response = requests.get(url)
+        print('response is: ' + str(response))
         soup = BeautifulSoup(response.content, "html.parser")
+        print('soup is: ' + str(soup))
 
         df_tblOne = _process_table(table_ids[0], soup)
         df_tblOne2 = _process_table(table_ids[1], soup, fallback_headers=headers)
