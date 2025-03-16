@@ -36,30 +36,30 @@ def scrape_tables(base_url, table_ids, headers, num_pages, destination):
         logger.info(f"Processing {url}")
         yield f"Processing {url}"
 
-        request_headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.0",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Accept-Language": "de,en-US;q=0.7,en;q=0.3",
-            "Accept-Encoding": "gzip, deflate, br, zstd",
-            "Alt-Used": "bitinfocharts.com",
-            "Connection": "keep-alive",
-            "Upgrade-Insecure-Requests": "1",
-            "Sec-Fetch-Dest": "document",
-            "Sec-Fetch-Mode": "navigate",
-            "Sec-Fetch-Site": "none",
-            "Sec-Fetch-User": "?1",
-            "Priority": "u=0, i",
-            "TE": "trailers"
-        }
+        # request_headers = {
+        #     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.0",
+        #     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        #     "Accept-Language": "de,en-US;q=0.7,en;q=0.3",
+        #     "Accept-Encoding": "gzip, deflate, br, zstd",
+        #     "Alt-Used": "bitinfocharts.com",
+        #     "Connection": "keep-alive",
+        #     "Upgrade-Insecure-Requests": "1",
+        #     "Sec-Fetch-Dest": "document",
+        #     "Sec-Fetch-Mode": "navigate",
+        #     "Sec-Fetch-Site": "none",
+        #     "Sec-Fetch-User": "?1",
+        #     "Priority": "u=0, i",
+        #     "TE": "trailers"
+        # }
+        # cookies = {
+        #     "_xicah": "c5a0badd-51955538",
+        #     "nightmode": "1",
+        #     "cf_clearance": "KNcL2FuGIZS3te1.ItEshcc7UuPE84e3PDteHQ7kfTw-1741251654-1.2.1.1-Y1yAZrGyKBPVX4B0gTNm1QtXNrwB988.I7aWv7vzihp8APw8teVz1am4nuAAPl3JCT.rX0OVx0NvILDnmG2Te6Oi7FASzhSu1gM9FDAkt9f9m1bYipXp0LUO3lAg_MHH2WEtSHoX9suVhps1sHGM4NnZGgFqfz72E.RCfAh_bCj_0ymrwINNuBZM6EAGeGo6bHyApDGk8WCAJnR0KQ_dGwQNMH6puHbxZG1WLll6bI3XclaGgo9hQrcJyJA2XYaA43da4FyGLS5j.D5sXf_UNTf_ecynBdg6DgwrVECeuNwQen5wq6izFI_f46m8rO4X1w9sX0EQZ8hoTbiEKlradzNxfqB3RRjOm5IZayLxH5HKRYrK9ZCyXoW96OB.0ab.QtDc1DWib6yzxrOBj_SuzWUP.22X03kUALy1VIEVK5pFw6fWwz.F9rjO5iP12kh8.WeedJRiSan4SrxmPT5Vjg",
+        #     "showCoins": "eth,xrp,ltc,bch,doge"
+        # }
+        # response = requests.get(url, headers=request_headers, cookies=cookies)
 
-        cookies = {
-            "_xicah": "c5a0badd-51955538",
-            "nightmode": "1",
-            "cf_clearance": "KNcL2FuGIZS3te1.ItEshcc7UuPE84e3PDteHQ7kfTw-1741251654-1.2.1.1-Y1yAZrGyKBPVX4B0gTNm1QtXNrwB988.I7aWv7vzihp8APw8teVz1am4nuAAPl3JCT.rX0OVx0NvILDnmG2Te6Oi7FASzhSu1gM9FDAkt9f9m1bYipXp0LUO3lAg_MHH2WEtSHoX9suVhps1sHGM4NnZGgFqfz72E.RCfAh_bCj_0ymrwINNuBZM6EAGeGo6bHyApDGk8WCAJnR0KQ_dGwQNMH6puHbxZG1WLll6bI3XclaGgo9hQrcJyJA2XYaA43da4FyGLS5j.D5sXf_UNTf_ecynBdg6DgwrVECeuNwQen5wq6izFI_f46m8rO4X1w9sX0EQZ8hoTbiEKlradzNxfqB3RRjOm5IZayLxH5HKRYrK9ZCyXoW96OB.0ab.QtDc1DWib6yzxrOBj_SuzWUP.22X03kUALy1VIEVK5pFw6fWwz.F9rjO5iP12kh8.WeedJRiSan4SrxmPT5Vjg",
-            "showCoins": "eth,xrp,ltc,bch,doge"
-        }
-
-        response = requests.get(url, headers=request_headers, cookies=cookies)
+        response = requests.get(url)
 
         response = requests.get(url)
         logger.info('response is: ' + str(response))
