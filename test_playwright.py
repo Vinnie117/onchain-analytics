@@ -36,9 +36,10 @@ async def playwright_scrape(base_url, table_ids, headers, num_pages, destination
 
             destination.append(df_page)
 
-
-        print(df_page)
         await browser.close()  # Must await
+
+    df = pd.concat(list_df, ignore_index=True)
+    print(df)
 
 if __name__ == "__main__":
     asyncio.run(playwright_scrape(base_url, table_ids, headers, num_pages, list_df))  # Run async function

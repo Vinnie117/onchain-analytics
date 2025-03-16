@@ -46,9 +46,11 @@ async def run_async_script(request: Request):
 
 from test_playwright import playwright_scrape
 import math
+# import asyncio
+# asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
 @app.post('/playwright-script')
-async def run_sync_script(request: Request):
+async def run_playwright(request: Request):
 
     list_df = []
     base_url = "https://bitinfocharts.com/top-100-richest-bitcoin-addresses{}.html"
