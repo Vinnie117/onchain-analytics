@@ -5,12 +5,12 @@ import pandas as pd
 import asyncio
 import math
 
-# list_df = []
-# base_url = "https://bitinfocharts.com/top-100-richest-bitcoin-addresses{}.html"
-# table_ids = ['tblOne', 'tblOne2']
-# headers = ['', 'Address', 'Balance', '% of coins', 'First In', 'Last In', 'Ins', 'First Out', 'Last Out', 'Outs']
-# user_input = '200'
-# num_pages = math.ceil(int(user_input) / 100)
+list_df = []
+base_url = "https://bitinfocharts.com/top-100-richest-bitcoin-addresses{}.html"
+table_ids = ['tblOne', 'tblOne2']
+headers = ['', 'Address', 'Balance', '% of coins', 'First In', 'Last In', 'Ins', 'First Out', 'Last Out', 'Outs']
+user_input = '200'
+num_pages = math.ceil(int(user_input) / 100)
 
 
 async def playwright_scrape(base_url, table_ids, headers, num_pages, destination):
@@ -39,6 +39,5 @@ async def playwright_scrape(base_url, table_ids, headers, num_pages, destination
 
         print(df_page)
         await browser.close()  # Must await
-        yield "data: Scraping process completed!\n\n" 
 
-#asyncio.run(playwright_scrape(base_url, table_ids, headers, num_pages, list_df))  # Run async function
+asyncio.run(playwright_scrape(base_url, table_ids, headers, num_pages, list_df))  # Run async function
