@@ -44,11 +44,24 @@ async def run_async_script(request: Request):
     return StreamingResponse(server_scrape_data(user_input), media_type='text/event-stream')
 
 
-# @app.post('/playwright-script')
-# async def run_sync_script(request: Request):
-#     data = await request.json() 
-#     user_input = data.get('user_input', '300')
+from test_playwright import playwright_scrape
+import math
 
-#     return StreamingResponse(playwright_scrape_data(user_input), media_type='text/event-stream')
+@app.post('/playwright-script')
+async def run_sync_script(request: Request):
+
+    list_df = []
+    base_url = "https://bitinfocharts.com/top-100-richest-bitcoin-addresses{}.html"
+    table_ids = ['tblOne', 'tblOne2']
+    headers = ['', 'Address', 'Balance', '% of coins', 'First In', 'Last In', 'Ins', 'First Out', 'Last Out', 'Outs']
+
+    data = await request.json() 
+    user_input = data.get('user_input', '300')
+    num_pages = math.ceil(int(user_input) / 100)
+
+    # Properly await the async function
+    await playwright_scrape(base_url, table_ids, headers, num_pages, list_df)
+
+    return {"message": "Script executed successfully"}
 
 

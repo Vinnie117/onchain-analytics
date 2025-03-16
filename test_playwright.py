@@ -40,4 +40,5 @@ async def playwright_scrape(base_url, table_ids, headers, num_pages, destination
         print(df_page)
         await browser.close()  # Must await
 
-asyncio.run(playwright_scrape(base_url, table_ids, headers, num_pages, list_df))  # Run async function
+if __name__ == "__main__":
+    asyncio.run(playwright_scrape(base_url, table_ids, headers, num_pages, list_df))  # Run async function
