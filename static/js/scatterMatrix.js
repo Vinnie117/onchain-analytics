@@ -16,14 +16,19 @@ d3.json("/static/data/default_rich_list.json").then(data => {
     const topIns = [...new Set(top100.map(d => d.Ins))] // Get unique "Ins" values
         .sort((a, b) => b - a) // Sort in descending order
         .slice(0, 10); // Take the top 10
+    top100 = top100.filter(d => !topIns.includes(d.Ins));
 
-    // Find the top 10 highest unique "Outs" values
-    const topOuts = [...new Set(top100.map(d => d.Outs))] // Get unique "Outs" values
-        .sort((a, b) => b - a) // Sort in descending order
-        .slice(0, 10); // Take the top 10
+    // // Find the top 10 highest unique "Outs" values
+    // const topOuts = [...new Set(top100.map(d => d.Outs))] // Get unique "Outs" values
+    //     .sort((a, b) => b - a) // Sort in descending order
+    //     .slice(0, 10); // Take the top 10
+    // top100 = top100.filter(d => !topOuts.includes(d.Outs));
+
 
     // Filter out the observations with the top 10 highest "Ins" and "Outs" values
-    top100 = top100.filter(d => !topIns.includes(d.Ins) && !topOuts.includes(d.Outs));
+    //top100 = top100.filter(d => !topIns.includes(d.Ins) && !topOuts.includes(d.Outs));
+
+
     // Scatterplot matrix variables
     const variables = ["Ins", "HODL_Days", "Outs"];
     const padding = 28;
@@ -92,9 +97,16 @@ d3.json("/static/data/default_rich_list.json").then(data => {
             .attr("fill", d => color(d["Address Type"]));
     }); // <-- Correctly closing the `.each()` block here.
 
+    // Define a mapping of variable names to new labels
+    const variableLabels = {
+        "Ins": "Inputs",
+        "Outs": "Outputs",
+        "HODL_Days": "Days HODLED"
+    };
+
     // Labels (moved outside of `.each()` to prevent duplication)
     matrix_chart.append("g")
-        .style("font", "bold 10px sans-serif")
+        .style("font", "bold 12px sans-serif")
         .style("pointer-events", "none")
         .selectAll("text")
         .data(variables)
@@ -103,7 +115,8 @@ d3.json("/static/data/default_rich_list.json").then(data => {
         .attr("x", padding)
         .attr("y", padding)
         .attr("dy", ".71em")
-        .text(d => d);
+        .text(d => variableLabels[d] || d); // Replace with mapped name
+
 
 
     // Append legend ABOVE the scatterplot
@@ -135,3 +148,27 @@ d3.json("/static/data/default_rich_list.json").then(data => {
 });
 
 
+document.getElementById('scatter-matrix-download').addEventListener('click', () => {
+    const svg = document.querySelector('#scatter-matrix-plot');
+    const serializer = new XMLSerializer();
+    let source = serializer.serializeToString(svg);
+
+    if (!source.includes('xmlns="http://www.w3.org/2000/svg"')) {
+        source = source.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+    }
+
+    fetch('/static/css/style.css').then(response => response.text()).then(css => {
+        const style = `<style>${css}</style>`;
+        source = source.replace('</svg>', `${style}</svg>`);
+
+        const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'scatter_matrix.svg';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }).catch(error => console.error('Error loading CSS:', error));
+});
