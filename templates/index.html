@@ -23,6 +23,19 @@
         </div>
     </div>
 
+    
+    <hr style="margin: 75px 0; border: none; border-top: 2px solid #ccc;">
+
+    <h2 id="scatter-matrix-heading">Brushable</h2>
+    <div class="container">
+        <div class="svg-container">
+            <svg id="scatter-matrix-plot" width="900" height="900"></svg>
+        </div>
+        <div class="button-container">
+            <button id="scatter-matrix-download" style="margin-bottom: 100px;">Download SVG</button>
+        </div>
+    </div>
+
     <hr style="margin: 75px 0; border: none; border-top: 2px solid #ccc;">
 
     <h2 id="hodl-heading">Days HODLed by Richest Addresses</h2>
@@ -65,6 +78,7 @@
 
     <!-- JavaScript Files -->
     <script src="{{ url_for('static', path='js/script.js') }}"></script>
+    <script src="{{ url_for('static', path='js/scatterMatrix.js') }}"></script>
     <script src="{{ url_for('static', path='js/scatterplot.js') }}"></script>
     <script src="{{ url_for('static', path='js/ageBands.js') }}"></script>
     <script src="{{ url_for('static', path='js/windowOnLoad.js') }}"></script>
