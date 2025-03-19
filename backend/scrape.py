@@ -30,7 +30,7 @@ def scrape_data(user_input):
 
     # Output results
     df.to_json('static/data/rich_list.json', index=False, orient='records')
-    df_matrix = df[['Ins', 'HODL_Days', 'Outs']]
+    df_matrix = df[['Ins', 'HODL_Days', 'Outs', 'Address Type']]
     df_matrix.to_csv('static/data/scatter_matrix.csv', index=False)
     yield "data: Data scraping completed successfully.\n\n"
 
