@@ -1,38 +1,25 @@
 const matrix_svg = d3.select("#scatter-matrix-plot"),
-    matrix_margin = { top: 30, right: 20, bottom: 100, left: 70 },
-    matrix_width = +matrix_svg.attr("width") - matrix_margin.left - matrix_margin.right,
-    matrix_height = +matrix_svg.attr("height") - matrix_margin.top - matrix_margin.bottom;
+matrix_margin = { top: 30, right: 20, bottom: 100, left: 70 },
+matrix_width = +matrix_svg.attr("width") - matrix_margin.left - matrix_margin.right,
+matrix_height = +matrix_svg.attr("height") - matrix_margin.top - matrix_margin.bottom;
 
 const matrix_chart = matrix_svg.append("g")
-    .attr("transform", `translate(${matrix_margin.left},${matrix_margin.top})`);
+.attr("transform", `translate(${matrix_margin.left},${matrix_margin.top})`);
 
-// Load your JSON data
+// Load JSON Data
 d3.json("/static/data/default_rich_list.json").then(data => {
 
-    // Sort by BTC descending, slice top 300
+    // Sort and filter top 300
     let top100 = data.sort((a, b) => b.BTC - a.BTC).slice(0, 300);
 
-    // Find the top 10 highest unique "Ins" values
-    const topIns = [...new Set(top100.map(d => d.Ins))] // Get unique "Ins" values
-        .sort((a, b) => b - a) // Sort in descending order
-        .slice(0, 10); // Take the top 10
+    // Find top 10 highest unique "Ins" values and filter them out
+    const topIns = [...new Set(top100.map(d => d.Ins))].sort((a, b) => b - a).slice(0, 10);
     top100 = top100.filter(d => !topIns.includes(d.Ins));
-
-    // // Find the top 10 highest unique "Outs" values
-    // const topOuts = [...new Set(top100.map(d => d.Outs))] // Get unique "Outs" values
-    //     .sort((a, b) => b - a) // Sort in descending order
-    //     .slice(0, 10); // Take the top 10
-    // top100 = top100.filter(d => !topOuts.includes(d.Outs));
-
-
-    // Filter out the observations with the top 10 highest "Ins" and "Outs" values
-    //top100 = top100.filter(d => !topIns.includes(d.Ins) && !topOuts.includes(d.Outs));
-
 
     // Scatterplot matrix variables
     const variables = ["Ins", "HODL_Days", "Outs"];
     const padding = 28;
-    const size = (width - (variables.length + 1) * padding) / variables.length + padding;
+    const size = (matrix_width - (variables.length + 1) * padding) / variables.length + padding;
 
     // Define scales
     const x = variables.map(v => d3.scaleLinear()
@@ -54,7 +41,7 @@ d3.json("/static/data/default_rich_list.json").then(data => {
         .data(x)
         .join("g")
         .attr("transform", (d, i) => `translate(${i * size},0)`)
-        .each(function(d) { return d3.select(this).call(axisx.scale(d)); })
+        .each(function (d) { return d3.select(this).call(axisx.scale(d)); })
         .call(g => g.select(".domain").remove())
         .call(g => g.selectAll(".tick line").attr("stroke", "#ddd"));
 
@@ -62,11 +49,11 @@ d3.json("/static/data/default_rich_list.json").then(data => {
         .data(y)
         .join("g")
         .attr("transform", (d, i) => `translate(0,${i * size})`)
-        .each(function(d) { return d3.select(this).call(axisy.scale(d)); })
+        .each(function (d) { return d3.select(this).call(axisy.scale(d)); })
         .call(g => g.select(".domain").remove())
         .call(g => g.selectAll(".tick line").attr("stroke", "#ddd"));
 
-    // Append axes to the chart group
+    // Append axes
     matrix_chart.append("g").call(xAxis);
     matrix_chart.append("g").call(yAxis);
 
@@ -86,7 +73,7 @@ d3.json("/static/data/default_rich_list.json").then(data => {
         .attr("height", size - padding);
 
     // Scatterplot points
-    cell.each(function([i, j]) {
+    cell.each(function ([i, j]) {
         d3.select(this).selectAll("circle")
             .data(top100.filter(d => !isNaN(d[variables[i]]) && !isNaN(d[variables[j]])))
             .join("circle")
@@ -95,16 +82,43 @@ d3.json("/static/data/default_rich_list.json").then(data => {
             .attr("r", 3.5)
             .attr("fill-opacity", 0.7)
             .attr("fill", d => color(d["Address Type"]));
-    }); // <-- Correctly closing the `.each()` block here.
+    });
 
-    // Define a mapping of variable names to new labels
+    // Brush functionality
+    const brush = d3.brush()
+        .extent([[padding / 2, padding / 2], [size - padding / 2, size - padding / 2]])
+        .on("brush", brushed)
+        .on("end", brushEnded);
+
+    cell.call(brush);
+
+    function brushed({ selection }, [i, j]) {
+        if (!selection) return;
+
+        const [[x0, y0], [x1, y1]] = selection;
+
+        const brushedData = top100.filter(d =>
+            x[i](d[variables[i]]) >= x0 && x[i](d[variables[i]]) <= x1 &&
+            y[j](d[variables[j]]) >= y0 && y[j](d[variables[j]]) <= y1
+        );
+
+        cell.selectAll("circle")
+            .style("fill-opacity", d => brushedData.includes(d) ? 1 : 0.1);
+    }
+
+    function brushEnded({ selection }) {
+        if (!selection) {
+            cell.selectAll("circle").style("fill-opacity", 0.7);
+        }
+    }
+
+    // Labels
     const variableLabels = {
         "Ins": "Inputs",
         "Outs": "Outputs",
         "HODL_Days": "Days HODLED"
     };
 
-    // Labels (moved outside of `.each()` to prevent duplication)
     matrix_chart.append("g")
         .style("font", "bold 12px sans-serif")
         .style("pointer-events", "none")
@@ -115,60 +129,28 @@ d3.json("/static/data/default_rich_list.json").then(data => {
         .attr("x", padding)
         .attr("y", padding)
         .attr("dy", ".71em")
-        .text(d => variableLabels[d] || d); // Replace with mapped name
+        .text(d => variableLabels[d] || d);
 
-
-
-    // Append legend ABOVE the scatterplot
+    // Append legend
     const legend = matrix_svg.append("g")
-        .attr("transform", `translate(${matrix_margin.left}, ${matrix_margin.top - 10})`) // Move above the plot
+        .attr("transform", `translate(${matrix_margin.left}, ${matrix_margin.top - 10})`)
         .attr("font-size", 12)
         .attr("text-anchor", "start");
 
-    // Add legend items (Side-by-side layout)
     const legendItems = legend.selectAll("g")
-        .data(color.domain()) // Get unique Address Types
+        .data(color.domain())
         .join("g")
-        .attr("transform", (d, i) => `translate(${i * 75}, 0)`); // Spread horizontally
+        .attr("transform", (d, i) => `translate(${i * 75}, 0)`);
 
-    // Add color circles
     legendItems.append("circle")
         .attr("r", 6)
         .attr("cx", 0)
         .attr("cy", 0)
         .attr("fill", d => color(d))
-        .attr("fill-opacity", 0.7)
+        .attr("fill-opacity", 0.7);
 
-    // Add text labels
     legendItems.append("text")
-        .attr("x", 12) // Offset for text
+        .attr("x", 12)
         .attr("y", 4)
         .text(d => d);
-
-});
-
-
-document.getElementById('scatter-matrix-download').addEventListener('click', () => {
-    const svg = document.querySelector('#scatter-matrix-plot');
-    const serializer = new XMLSerializer();
-    let source = serializer.serializeToString(svg);
-
-    if (!source.includes('xmlns="http://www.w3.org/2000/svg"')) {
-        source = source.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
-    }
-
-    fetch('/static/css/style.css').then(response => response.text()).then(css => {
-        const style = `<style>${css}</style>`;
-        source = source.replace('</svg>', `${style}</svg>`);
-
-        const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'scatter_matrix.svg';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }).catch(error => console.error('Error loading CSS:', error));
 });
