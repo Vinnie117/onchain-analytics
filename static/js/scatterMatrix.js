@@ -87,10 +87,19 @@ d3.json("/static/data/default_rich_list.json").then(data => {
     // Brush functionality
     const brush = d3.brush()
         .extent([[padding / 2, padding / 2], [size - padding / 2, size - padding / 2]])
+        .on("start", brushStarted)
         .on("brush", brushed)
         .on("end", brushEnded);
 
     cell.call(brush);
+
+    let brushCell;
+    function brushStarted() {
+        if (brushCell !== this) {
+          d3.select(brushCell).call(brush.move, null);
+          brushCell = this;
+        }
+      }
 
     function brushed({ selection }, [i, j]) {
         if (!selection) return;
