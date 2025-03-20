@@ -103,7 +103,7 @@ d3.json("/static/data/default_rich_list.json").then(data => {
         );
     
         cell.selectAll("circle")
-            .transition().duration(200) // Smooth transition
+            .transition().duration(50) // Smooth transition
             .attr("fill-opacity", d => brushedData.includes(d) ? 1 : 0.1)
             .attr("r", d => brushedData.includes(d) ? 3.5 : 1.5); // Reduce radius of unselected points
     }
