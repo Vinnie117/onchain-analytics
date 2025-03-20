@@ -94,23 +94,29 @@ d3.json("/static/data/default_rich_list.json").then(data => {
 
     function brushed({ selection }, [i, j]) {
         if (!selection) return;
-
+    
         const [[x0, y0], [x1, y1]] = selection;
-
+    
         const brushedData = top100.filter(d =>
             x[i](d[variables[i]]) >= x0 && x[i](d[variables[i]]) <= x1 &&
             y[j](d[variables[j]]) >= y0 && y[j](d[variables[j]]) <= y1
         );
-
+    
         cell.selectAll("circle")
-            .style("fill-opacity", d => brushedData.includes(d) ? 1 : 0.1);
+            .transition().duration(200) // Smooth transition
+            .attr("fill-opacity", d => brushedData.includes(d) ? 1 : 0.1)
+            .attr("r", d => brushedData.includes(d) ? 3.5 : 1.5); // Reduce radius of unselected points
     }
-
+    
     function brushEnded({ selection }) {
         if (!selection) {
-            cell.selectAll("circle").style("fill-opacity", 0.7);
+            cell.selectAll("circle")
+                .transition().duration(200)
+                .attr("fill-opacity", 0.7)
+                .attr("r", 3.5); // Restore original size
         }
     }
+    
 
     // Labels
     const variableLabels = {
