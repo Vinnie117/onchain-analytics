@@ -78,13 +78,15 @@
 
     <hr style="margin: 75px 0; border: none; border-top: 2px solid #ccc;">
 
-    <h2 id="treemap-heading">Treemap zoom zoom</h2>
+    <h2 id="treemap-heading">Treemap - zoom zoom mousewheel</h2>
     <div class="container">
         <div class="svg-container" style="max-width: 1200px; border: 2px solid red; display: inline-block; overflow: hidden;">
             <svg id="treemap-plot" width="1200" height="900"></svg>
         </div>
         <div class="button-container">
-            <button id="treemap-download" style="margin-bottom: 100px;">Download SVG</button>
+            <button id="treemap-download" style="margin-bottom: 20px;">Download SVG</button>
+            <input type="text" id="exclude-top" placeholder="Exclude top X entries" style="margin-right: 5px;">
+            <input type="text" id="exclude-bottom" placeholder="Exclude bottom X entries" style="margin-right: 5px;">
         </div>
     </div>
 

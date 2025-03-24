@@ -130,3 +130,20 @@ document.getElementById('treemap-download').addEventListener('click', () => {
         document.body.removeChild(a);
     }).catch(error => console.error('Error loading CSS:', error));
 });
+
+
+// Event listener for input 'exclude-top'
+document.getElementById('exclude-top').addEventListener('change', function() {
+    const excludeTopValue = parseInt(this.value, 10);
+    
+    if (isNaN(excludeTopValue) || excludeTopValue < 0 || excludeTopValue > 80) {
+        alert('Please enter an integer between 1 and 80.');
+        return;
+    }
+
+    // Get current excludeBottom value if needed
+    const excludeBottomValue = parseInt(document.getElementById('exclude-bottom').value, 10) || 0;
+
+    // Update treemap with new excludeTop value
+    updateTreeMap('/static/data/corporate_treasuries_20250322.csv', excludeTopValue, excludeBottomValue);
+});
