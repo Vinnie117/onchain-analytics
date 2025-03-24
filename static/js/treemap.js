@@ -10,7 +10,7 @@ treemap_svg.append("text")
     .attr("text-anchor", "end")
     .style("font-size", "12px")
     .style("font-family", "Arial, sans-serif")
-    .text("Data Source: bitcointreasuries.net (2025-03-22)");
+    .text("Data Source: bitcointreasuries.net (2025-03-21)");
 
 
 const treemap_chart = treemap_svg.append("g")
