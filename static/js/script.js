@@ -1,4 +1,4 @@
-const svg = d3.select("svg"),
+const svg = d3.select("#top-holders"),
     margin = { top: 30, right: 20, bottom: 100, left: 70 },
     width = +svg.attr("width") - margin.left - margin.right,
     height = +svg.attr("height") - margin.top - margin.bottom;
@@ -93,7 +93,7 @@ d3.json("/static/data/default_rich_list.json").then(data => {
 
 // SVG download code remains the same
 document.getElementById('download').addEventListener('click', () => {
-    const svg = document.querySelector('svg');
+    const svg = document.querySelector('#top-holders');
     const serializer = new XMLSerializer();
     let source = serializer.serializeToString(svg);
 
