@@ -75,13 +75,14 @@ function updateTreeMap(dataFile = '/static/data/corporate_treasuries_20250322.cs
                 textEl.append("tspan")
                     .text(d.data.Name)
                     .attr("x", 4)
-                    .attr("dy", "0em");
+                    .attr("dy", "0em")
+                    .style("font-weight", "bold");
                 
                 textEl.append("tspan")
-                    .text(`${d.data.Bitcoin.toLocaleString()} BTC`)
+                    .text(`${d.data.Bitcoin.toLocaleString('en-US')} BTC`)
                     .attr("x", 4)
                     .attr("dy", "1.1em")
-                    .style("font-weight", "bold");
+                    
                 
                 let bbox = this.getBBox();
                 const rectWidth = d.x1 - d.x0 - 4;
