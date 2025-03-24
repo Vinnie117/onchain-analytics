@@ -1,7 +1,17 @@
 const treemap_svg = d3.select("#treemap-plot"),
-    marginTreemap = { top: 30, right: 20, bottom: 100, left: 70 },
+    marginTreemap = { top: 30, right: 20, bottom: 50, left: 20 },
     widthTreemap = +treemap_svg.attr("width") - marginTreemap.left - marginTreemap.right,
     heightTreemap = +treemap_svg.attr("height") - marginTreemap.top - marginTreemap.bottom;
+
+// Annotation
+treemap_svg.append("text")
+    .attr("x", widthTreemap + marginTreemap.right + marginTreemap.left) // Adjusted
+    .attr("y", heightTreemap + marginTreemap.top + 50) // Adjusted
+    .attr("text-anchor", "end")
+    .style("font-size", "12px")
+    .style("font-family", "Arial, sans-serif")
+    .text("Data Source: bitinfocharts.com (2025-03-22)");
+
 
 const treemap_chart = treemap_svg.append("g")
     .attr("transform", `translate(${marginTreemap.left},${marginTreemap.top})`);
@@ -32,7 +42,7 @@ function updateTreeMap(dataFile = '/static/data/corporate_treasuries_20250322.cs
             .size([widthTreemap, heightTreemap])
             .padding(2)(root);
 
-        const treemap_color = d3.scaleSequential(d3.interpolateBlues)
+        const treemap_color = d3.scaleSequential(d3.interpolateOranges)
             .domain([0, d3.max(filteredData, d => d.Bitcoin)]);
 
         // Clear previous content before updating
@@ -93,7 +103,7 @@ function updateTreeMap(dataFile = '/static/data/corporate_treasuries_20250322.cs
 }
 
 
-updateTreeMap('/static/data/corporate_treasuries_20250322.csv', 1, 0);
+updateTreeMap('/static/data/corporate_treasuries_20250322.csv', 0, 0);
 
 
 document.getElementById('treemap-download').addEventListener('click', () => {
