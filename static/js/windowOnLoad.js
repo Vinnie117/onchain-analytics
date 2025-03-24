@@ -14,4 +14,7 @@ window.onload = () => {
     updateAgeBandsPlot("default_rich_list.json", defaultInputAgeBands);
     const h2AgeBands= document.getElementById('age-bands-heading');
     h2AgeBands.textContent = `Age Bands by Richest Addresses (Top ${defaultInputAgeBands})`;
+
+    document.getElementById('exclude-top').value = '';
+    document.getElementById('exclude-bottom').value = '';
 };
