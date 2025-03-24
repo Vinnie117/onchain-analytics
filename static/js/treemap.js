@@ -17,11 +17,14 @@ function zoomed(event) {
     treemap_chart.attr("transform", event.transform);
 }
 
-function updateTreeMap(dataFile = '/static/data/corporate_treasuries_20250322.csv') {
+function updateTreeMap(dataFile = '/static/data/corporate_treasuries_20250322.csv', excludeTop = 0, excludeBottom = 0) {
 
     d3.csv(dataFile, d3.autoType).then(data => {
 
-        const root = d3.hierarchy({ values: data }, d => d.values)
+        // Exclude top X and bottom Y entries
+        const filteredData = data.slice(excludeTop, data.length - excludeBottom);
+
+        const root = d3.hierarchy({ values: filteredData }, d => d.values)
             .sum(d => d.Bitcoin)
             .sort((a, b) => b.value - a.value);
 
@@ -30,7 +33,10 @@ function updateTreeMap(dataFile = '/static/data/corporate_treasuries_20250322.cs
             .padding(2)(root);
 
         const treemap_color = d3.scaleSequential(d3.interpolateBlues)
-            .domain([0, d3.max(data, d => d.Bitcoin)]);
+            .domain([0, d3.max(filteredData, d => d.Bitcoin)]);
+
+        // Clear previous content before updating
+        treemap_chart.selectAll("*").remove();
 
         const nodes = treemap_chart.selectAll("g")
             .data(root.leaves())
@@ -43,43 +49,52 @@ function updateTreeMap(dataFile = '/static/data/corporate_treasuries_20250322.cs
             .attr("height", d => d.y1 - d.y0)
             .attr("fill", d => treemap_color(d.value));
 
-            nodes.append("text")
+        nodes.append("text")
             .attr("class", "node")
             .attr("fill", "black")
             .attr("x", 4)
             .attr("y", 14)
-            .text(d => d.data.Name)
             .style("font-size", function(d) {
                 const rectWidth = d.x1 - d.x0;
                 const rectHeight = d.y1 - d.y0;
-                // Initial guess for font size based on rectangle size
-                return `${Math.min(rectHeight / 2, rectWidth / d.data.Name.length * 1.8, 16)}px`;
+                return `${Math.min(rectHeight / 3, rectWidth / d.data.Name.length * 1.8, 16)}px`;
             })
             .each(function(d) {
                 const textEl = d3.select(this);
+                
+                textEl.append("tspan")
+                    .text(d.data.Name)
+                    .attr("x", 4)
+                    .attr("dy", "0em");
+                
+                textEl.append("tspan")
+                    .text(`${d.data.Bitcoin.toLocaleString()} BTC`)
+                    .attr("x", 4)
+                    .attr("dy", "1.1em")
+                    .style("font-weight", "bold");
+                
                 let bbox = this.getBBox();
-                const rectWidth = d.x1 - d.x0 - 4;  // slight padding
-                const rectHeight = d.y1 - d.y0 - 4; // slight padding
+                const rectWidth = d.x1 - d.x0 - 4;
+                const rectHeight = d.y1 - d.y0 - 4;
                 let fontSize = parseFloat(textEl.style("font-size"));
-        
-                // Iteratively shrink font until it fits
+
                 while ((bbox.width > rectWidth || bbox.height > rectHeight) && fontSize > 5) {
                     fontSize -= 0.5;
                     textEl.style("font-size", `${fontSize}px`);
                     bbox = this.getBBox();
                 }
-        
-                // If it still doesn't fit at minimum size, hide the text
+
                 if (bbox.width > rectWidth || bbox.height > rectHeight) {
                     textEl.style("display", "none");
                 }
             });
-        
-        
+
     });
 }
 
-updateTreeMap();
+
+updateTreeMap('/static/data/corporate_treasuries_20250322.csv', 1, 0);
+
 
 document.getElementById('treemap-download').addEventListener('click', () => {
     const svg = document.querySelector('#treemap-plot');
