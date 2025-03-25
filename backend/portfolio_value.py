@@ -33,9 +33,9 @@ btc_pf_start = 100
 df['BTC_pf'] = btc_pf_start * df['BTC_daily_ret'].cumprod()
 df.loc[df.index[0], 'BTC_pf'] = btc_pf_start
 
-
+df = df.reset_index()
 print(df.head(10))
 print(df.dtypes)
 print(df.tail(10))
 
-#df.to_json('static/data/pf_data.json', index=False, orient='records')
+df.to_json('static/data/pf_data.json', index=False, orient='records')
