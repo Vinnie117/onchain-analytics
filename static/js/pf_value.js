@@ -85,20 +85,20 @@ function updateLineChart(dataFile = '/static/data/pf_data.json') {
             .attr("stroke-dasharray", "3,3");
 
         let htmlTooltip = d3.select("#pfvalue-tooltip");
-        if (htmlTooltip.empty()) {
-            htmlTooltip = d3.select("body").append("div")
-                .attr("id", "pfvalue-tooltip")
-                .style("position", "absolute")
-                .style("pointer-events", "none")
-                .style("background", "#fff")
-                .style("border", "1px solid #333")
-                .style("border-radius", "4px")
-                .style("padding", "8px 12px")
-                .style("font-size", "13px")
-                .style("font-family", "sans-serif")
-                .style("box-shadow", "0 2px 6px rgba(0,0,0,0.15)")
-                .style("display", "none");
-        }
+
+        htmlTooltip = d3.select("body").append("div")
+            .attr("id", "pfvalue-tooltip")
+            .style("position", "absolute")
+            .style("pointer-events", "none")
+            .style("background", "#bcb6bf")
+            .style("border", "1px solid #333")
+            .style("border-radius", "4px")
+            .style("padding", "8px 12px")
+            .style("font-size", "13px")
+            .style("font-family", "sans-serif")
+            .style("box-shadow", "0 2px 6px rgba(31, 179, 134, 0.15)")
+            .style("display", "none");
+        
 
         // Mouse interaction
         area_chart.append("rect")
