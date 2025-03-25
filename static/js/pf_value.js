@@ -74,66 +74,65 @@ function updateStackedAreaChart(dataFile = '/static/data/pf_data.json') {
             .attr("transform", `translate(0,${heightArea})`)
             .call(d3.axisBottom(x).tickSizeOuter(0));
 
-// Tooltip elements
-const tooltipLine = area_chart.append("line")
-    .style("display", "none")
-    .attr("stroke", "#000")
-    .attr("y1", 0)
-    .attr("y2", heightArea)
-    .attr("stroke-width", 1)
-    .attr("stroke-dasharray", "3,3");
+        // Tooltip elements
+        const tooltipLine = area_chart.append("line")
+            .style("display", "none")
+            .attr("stroke", "#000")
+            .attr("y1", 0)
+            .attr("y2", heightArea)
+            .attr("stroke-width", 1)
+            .attr("stroke-dasharray", "3,3");
 
-// Select or create HTML tooltip
-let htmlTooltip = d3.select("#pfvalue-tooltip");
-if (htmlTooltip.empty()) {
-    htmlTooltip = d3.select("body").append("div")
-        .attr("id", "pfvalue-tooltip")
-        .style("position", "absolute")
-        .style("pointer-events", "none")
-        .style("background", "#fff")
-        .style("border", "1px solid #333")
-        .style("border-radius", "4px")
-        .style("padding", "8px 12px")
-        .style("font-size", "13px")
-        .style("font-family", "sans-serif")
-        .style("box-shadow", "0 2px 6px rgba(0,0,0,0.15)")
-        .style("display", "none");
-}
-area_chart.append("rect")
-    .attr("width", widthArea)
-    .attr("height", heightArea)
-    .attr("fill", "none")
-    .attr("pointer-events", "all")
-    .on("mouseover", () => {
-        tooltipLine.style("display", null);
-        htmlTooltip.style("display", "block");
-    })
-    .on("mouseout", () => {
-        tooltipLine.style("display", "none");
-        htmlTooltip.style("display", "none");
-    })
-    .on("mousemove", function(event) {
-        const [mouseX, mouseY] = d3.pointer(event, this);
-        const x0 = x.invert(mouseX);
-        const i = d3.bisector(d => d.date).center(data, x0);
-        const d = data[i];
+        // Select or create HTML tooltip
+        let htmlTooltip = d3.select("#pfvalue-tooltip");
+        if (htmlTooltip.empty()) {
+            htmlTooltip = d3.select("body").append("div")
+                .attr("id", "pfvalue-tooltip")
+                .style("position", "absolute")
+                .style("pointer-events", "none")
+                .style("background", "#fff")
+                .style("border", "1px solid #333")
+                .style("border-radius", "4px")
+                .style("padding", "8px 12px")
+                .style("font-size", "13px")
+                .style("font-family", "sans-serif")
+                .style("box-shadow", "0 2px 6px rgba(0,0,0,0.15)")
+                .style("display", "none");
+        }
+        area_chart.append("rect")
+            .attr("width", widthArea)
+            .attr("height", heightArea)
+            .attr("fill", "none")
+            .attr("pointer-events", "all")
+            .on("mouseover", () => {
+                tooltipLine.style("display", null);
+                htmlTooltip.style("display", "block");
+            })
+            .on("mouseout", () => {
+                tooltipLine.style("display", "none");
+                htmlTooltip.style("display", "none");
+            })
+            .on("mousemove", function(event) {
+                const [mouseX, mouseY] = d3.pointer(event, this);
+                const x0 = x.invert(mouseX);
+                const i = d3.bisector(d => d.date).center(data, x0);
+                const d = data[i];
 
-        tooltipLine.attr("x1", x(d.date)).attr("x2", x(d.date));
+                tooltipLine.attr("x1", x(d.date)).attr("x2", x(d.date));
 
-        // Position HTML tooltip near cursor
-        const pageX = event.pageX;
-        const pageY = event.pageY;
+                // Position HTML tooltip near cursor
+                const pageX = event.pageX;
+                const pageY = event.pageY;
 
-        htmlTooltip
-            .style("left", `${pageX + 15}px`)
-            .style("top", `${pageY + 15}px`)
-            .html(`
-                <strong>${d.date.toLocaleDateString()}</strong><br>
-                BTC: ${d.BTC.toFixed(2)}<br>
-                SPY: ${d.SPY.toFixed(2)}
-            `);
-    });
-
+                htmlTooltip
+                    .style("left", `${pageX + 15}px`)
+                    .style("top", `${pageY + 15}px`)
+                    .html(`
+                        <strong>${d.date.toLocaleDateString()}</strong><br>
+                        BTC: ${d.BTC.toFixed(2)}<br>
+                        SPY: ${d.SPY.toFixed(2)}
+                    `);
+            });
     });
 }
 
