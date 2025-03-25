@@ -59,6 +59,8 @@ function updateLineChart(dataFile = '/static/data/pf_data.json') {
         // Add Y axis
         area_chart.append("g")
             .call(d3.axisLeft(y).ticks(heightArea / 80))
+            .selectAll("text")
+            .style("font-size", "12px");
 
         // Y-axis label
         area_svg.append("text")
@@ -73,7 +75,8 @@ function updateLineChart(dataFile = '/static/data/pf_data.json') {
         // Add X axis
         area_chart.append("g")
             .attr("transform", `translate(0,${heightArea})`)
-            .call(d3.axisBottom(x).tickSizeOuter(0));
+            .call(d3.axisBottom(x).tickSizeOuter(0))
+            .style("font-size", "12px");
 
         // Tooltip elements
         const tooltipLine = area_chart.append("line")
