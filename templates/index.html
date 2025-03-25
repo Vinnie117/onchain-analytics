@@ -13,6 +13,19 @@
 </head>
 <body>
 
+    <h2 id="pfvalue-heading">Pf value</h2>
+    <div class="container">
+        <div class="svg-container" style="max-width: 1000px;">
+            <svg id="pfvalue-plot" width="900" height="500"></svg>
+            <div id="pfvalue-tooltip" style="position: absolute; display: none; pointer-events: none;"></div>
+
+        </div>
+        <div class="button-container">
+            <button id="pfvalue-download" style="margin-bottom: 20px;">Download SVG</button>
+        </div>
+    </div>
+
+
     <h2>Top 20 Bitcoin Holders</h2>
     <div class="container">
         <div class="svg-container">
@@ -92,6 +105,7 @@
 
     <!-- JavaScript Files -->
     <script src="{{ url_for('static', path='js/treemap.js') }}"></script>
+    <script src="{{ url_for('static', path='js/pf_value.js') }}"></script>
     <script src="{{ url_for('static', path='js/script.js') }}"></script>
     <script src="{{ url_for('static', path='js/scatterMatrix.js') }}"></script>
     <script src="{{ url_for('static', path='js/scatterplot.js') }}"></script>
