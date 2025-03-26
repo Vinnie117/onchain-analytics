@@ -148,3 +148,17 @@ document.getElementById('exclude-top').addEventListener('change', function() {
     // Update treemap with new excludeTop value
     updateTreeMap('/static/data/corporate_treasuries_20250322.csv', excludeTopValue, excludeBottomValue);
 });
+
+// Event listener for input 'exclude-bottom'
+document.getElementById('exclude-bottom').addEventListener('change', function() {
+    const excludeBottomValue = parseInt(this.value, 10);
+
+    if (isNaN(excludeBottomValue) || excludeBottomValue < 0 || excludeBottomValue > 80) {
+        alert('Please enter an integer between 0 and 80.');
+        return;
+    }
+
+    const excludeTopValue = parseInt(document.getElementById('exclude-top').value, 10) || 0;
+
+    updateTreeMap('/static/data/corporate_treasuries_20250322.csv', excludeTopValue, excludeBottomValue);
+});
