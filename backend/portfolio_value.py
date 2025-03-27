@@ -15,8 +15,12 @@ def compute_portfolio(df_path, spy_start, btc_start):
     df['BTC_pf'] = btc_start * df['BTC_daily_ret'].cumprod()
     df.loc[df.index[0], 'BTC_pf'] = btc_start
 
+    df['combined_pf'] = df['SPY_pf'] + df['BTC_pf'] 
+
     return df
 
-# Example usage
-df = compute_portfolio('static/data/pf_data.json', spy_start=100, btc_start=100)
-print(df.head(10))
+# # Example usage
+# df = compute_portfolio('static/data/pf_data.json', spy_start=100, btc_start=100)
+# print(df.head(10))
+# print(df.tail(10))
+# df.to_json('static/data/pf_value.json', orient='records', date_format='iso')

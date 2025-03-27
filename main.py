@@ -1,9 +1,14 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import StreamingResponse, HTMLResponse
 from backend.scrape import scrape_data, server_scrape_data
 from backend.logger import logger
+from backend.portfolio_value import compute_portfolio
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+from fastapi.responses import HTMLResponse, JSONResponse
+import json
+
 app = FastAPI()
 app.logger = logger
 
@@ -16,6 +21,32 @@ templates = Jinja2Templates(directory="templates")
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+
+
+class AllocationInput(BaseModel):
+    spy_start: float
+    btc_start: float
+
+@app.post("/api/update-portfolio")
+async def update_portfolio(alloc: AllocationInput):
+    try:
+        # Compute portfolio
+        df = compute_portfolio('static/data/pf_data.json', alloc.spy_start, alloc.btc_start)
+        result_json_path = 'static/data/pf_value.json'
+        
+        # Write computed data to JSON
+        df.to_json(result_json_path, orient='records', date_format='iso')
+
+        # Respond back with the JSON data
+        with open(result_json_path, 'r') as f:
+            data = json.load(f)
+
+        return JSONResponse(content={"status": "success", "data": data})
+
+    except Exception as e:
+        app.logger.error(f"Error updating portfolio: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 

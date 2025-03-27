@@ -1,6 +1,7 @@
 // Clear the input field on page load
 
 window.onload = () => {
+
     const defaultInput = 300;
     document.getElementById('apply-input').value = '';
     updateScatterPlot("default_rich_list.json", defaultInput); // Load default data
@@ -17,4 +18,7 @@ window.onload = () => {
 
     document.getElementById('exclude-top').value = '';
     document.getElementById('exclude-bottom').value = '';
+    
+    document.getElementById('allocation-btc').value = '';
+    document.getElementById('allocation-spy').value = '';
 };
