@@ -156,6 +156,9 @@ document.getElementById("update-portfolio-btn").addEventListener("click", () => 
         console.error("Fetch error:", err);
         alert("Error updating portfolio data.");
     });
+    // Update heading with new values
+    const heading = document.getElementById('pfvalue-heading');
+    heading.innerText = `Portfolio Value for: ${spyAllocation}% SPY and ${btcAllocation}% BTC`;
 });
 
 // SVG download button
