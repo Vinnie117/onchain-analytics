@@ -16,9 +16,17 @@ window.onload = () => {
     const h2AgeBands= document.getElementById('age-bands-heading');
     h2AgeBands.textContent = `Age Bands by Richest Addresses (Top ${defaultInputAgeBands})`;
 
+    // Treemap
     document.getElementById('exclude-top').value = '';
     document.getElementById('exclude-bottom').value = '';
     
+    // Portfolio value
     document.getElementById('allocation-btc').value = '';
     document.getElementById('allocation-spy').value = '';
+    
+    const defaultSpyAlloc = 95;
+    const defaultBtcAlloc = 5;
+    const heading = document.getElementById('pfvalue-heading');
+    heading.innerText = `Portfolio Value for: ${defaultSpyAlloc}% SPY and ${defaultBtcAlloc}% BTC`;
+
 };
