@@ -1,6 +1,6 @@
 // Select SVG and define margins/dimensions
 const area_svg = d3.select("#pfvalue-plot"),
-    marginArea = { top: 10, right: 10, bottom: 20, left: 75 },
+    marginArea = { top: 60, right: 10, bottom: 20, left: 75 },
     widthArea = +area_svg.attr("width") - marginArea.left - marginArea.right,
     heightArea = +area_svg.attr("height") - marginArea.top - marginArea.bottom;
 
@@ -8,18 +8,23 @@ const area_svg = d3.select("#pfvalue-plot"),
 const area_chart = area_svg.append("g")
     .attr("transform", `translate(${marginArea.left},${marginArea.top})`);
 
-// Function to render line chart
 function updateLineChart(data) {
-    // Format data
+    // Format and clean data
     const parsedData = data.map(d => ({
         date: new Date(d.Date),
-        BTC: d.BTC_pf,
-        SPY: d.SPY_pf,
-        Combined: d.combined_pf
+        BTC: d.BTC_pf || 0,
+        SPY: d.SPY_pf || 0,
+        Combined: d.combined_pf || 0
     }));
 
-    // Clear existing content
+    // Clear previous chart
     area_chart.selectAll("*").remove();
+
+    // Stack generator
+    const stack = d3.stack()
+        .keys(["BTC", "SPY"]);
+
+    const stackedData = stack(parsedData);
 
     // Scales
     const x = d3.scaleUtc()
@@ -27,12 +32,17 @@ function updateLineChart(data) {
         .range([0, widthArea]);
 
     const y = d3.scaleLinear()
-        .domain([0, d3.max(parsedData, d => Math.max(d.BTC, d.SPY, d.Combined))]).nice()
+        .domain([
+            0,
+            d3.max(parsedData, d => d.BTC + d.SPY)
+        ]).nice()
         .range([heightArea, 0]);
 
+    // Add transparent colors
     const color = d3.scaleOrdinal()
         .domain(["BTC", "SPY", "Combined"])
-        .range(["#f7931a", "#2ca02c", "#4682b4"]);
+        .range(["rgba(247, 147, 26, 0.4)", "rgba(44, 160, 44, 0.4)", "#4682b4"]);
+
 
     // Axes
     area_chart.append("g")
@@ -42,22 +52,78 @@ function updateLineChart(data) {
     area_chart.append("g")
         .call(d3.axisLeft(y));
 
-    // Line generator
-    const line = key => d3.line()
-        .x(d => x(d.date))
-        .y(d => y(d[key]));
+    // Legend
+    const legend = area_chart.append("g")
+    .attr("class", "legend")
+    .attr("transform", "translate(0, -30)");
 
-    // Draw lines for BTC, SPY, and Combined portfolios
-    ["BTC", "SPY", "Combined"].forEach(key => {
-        area_chart.append("path")
-            .datum(parsedData)
-            .attr("fill", "none")
-            .attr("stroke", color(key))
-            .attr("stroke-width", 2)
-            .attr("d", line(key));
+    const legendItems = [
+    { name: "BTC", color: "rgba(247, 147, 26, 0.6)" },
+    { name: "SPY", color: "rgba(44, 160, 44, 0.6)" },
+    { name: "Combined", color: "#4682b4", isLine: true }
+    ];
+
+    legend.selectAll("g")
+    .data(legendItems)
+    .enter()
+    .append("g")
+    .attr("transform", (d, i) => `translate(${i * 100}, 0)`)
+    .each(function(d) {
+        const g = d3.select(this);
+        
+        if (d.isLine) {
+            g.append("line")
+                .attr("x1", 0)
+                .attr("y1", 5)
+                .attr("x2", 20)
+                .attr("y2", 5)
+                .attr("stroke", d.color)
+                .attr("stroke-width", 2);
+        } else {
+            g.append("rect")
+                .attr("x", 0)
+                .attr("y", -5)
+                .attr("width", 20)
+                .attr("height", 10)
+                .attr("fill", d.color);
+        }
+
+        g.append("text")
+            .attr("x", 25)
+            .attr("y", 5)
+            .attr("dy", "0.35em")
+            .style("font-size", "12px")
+            .text(d.name);
     });
 
-    // Tooltip interaction elements
+
+    // Area generator
+    const area = d3.area()
+        .x(d => x(d.data.date))
+        .y0(d => y(d[0]))
+        .y1(d => y(d[1]));
+
+    // Draw stacked areas
+    area_chart.selectAll(".area")
+        .data(stackedData)
+        .enter()
+        .append("path")
+        .attr("fill", d => color(d.key))
+        .attr("d", area);
+
+    // Draw Combined line
+    const combinedLine = d3.line()
+        .x(d => x(d.date))
+        .y(d => y(d.Combined));
+
+    area_chart.append("path")
+        .datum(parsedData)
+        .attr("fill", "none")
+        .attr("stroke", "#4682b4")
+        .attr("stroke-width", 2)
+        .attr("d", combinedLine);
+
+    // Tooltip line
     const tooltipLine = area_chart.append("line")
         .attr("stroke", "#000")
         .attr("y1", 0)
@@ -66,6 +132,7 @@ function updateLineChart(data) {
         .attr("stroke-dasharray", "3,3")
         .style("display", "none");
 
+    // Tooltip div
     const tooltip = d3.select("#pfvalue-tooltip")
         .style("position", "absolute")
         .style("pointer-events", "none")
@@ -76,7 +143,7 @@ function updateLineChart(data) {
         .style("font-size", "13px")
         .style("display", "none");
 
-    // Interaction rectangle
+    // Interaction
     area_chart.append("rect")
         .attr("width", widthArea)
         .attr("height", heightArea)
@@ -110,7 +177,7 @@ function updateLineChart(data) {
                 `);
         });
 }
-
+    
 // Initial load
 fetch('/static/data/pf_data.json')
     .then(response => response.json())
