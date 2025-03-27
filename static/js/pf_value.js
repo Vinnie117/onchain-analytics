@@ -130,12 +130,12 @@ document.getElementById("update-portfolio-btn").addEventListener("click", () => 
         isNaN(btcAllocation) || isNaN(spyAllocation) ||
         btcInput.includes('.') || spyInput.includes('.')
     ) {
-        alert('Please enter valid integer allocations (no decimals).');
+        alert('Please enter valid integer allocations.');
         return;
     }
 
     if (btcAllocation + spyAllocation !== 100) {
-        alert('Allocations must sum to exactly 100.');
+        alert('Allocations must sum to exactly 100. Use integers.');
         return;
     }
 
