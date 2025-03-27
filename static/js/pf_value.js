@@ -52,6 +52,18 @@ function updateLineChart(data) {
     area_chart.append("g")
         .call(d3.axisLeft(y));
 
+    // Y-axis label
+    area_chart.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", -50) // adjust for spacing from the axis
+    .attr("x", -heightArea / 2)
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .style("font-size", "16px")
+    .style("font-weight", "bold")
+    .text("Portfolio Value");
+
+
     // Legend
     const legend = area_chart.append("g")
     .attr("class", "legend")
