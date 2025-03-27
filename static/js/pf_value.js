@@ -115,7 +115,8 @@ function updateLineChart(data) {
 fetch('/static/data/pf_data.json')
     .then(response => response.json())
     .then(data => updateLineChart(data))
-    .catch(console.error);
+.catch(console.error);
+
 
 // Event handler for updating portfolio
 document.getElementById("update-portfolio-btn").addEventListener("click", () => {
@@ -176,3 +177,13 @@ document.getElementById('pfvalue-download').addEventListener('click', () => {
     a.click();
     document.body.removeChild(a);
 });
+
+
+// Enter button
+function handleEnterKeyToUpdate(event) {
+    if (event.key === 'Enter') {
+        document.getElementById("update-portfolio-btn").click();
+    }
+}    
+document.getElementById('allocation-btc').addEventListener('keydown', handleEnterKeyToUpdate);
+document.getElementById('allocation-spy').addEventListener('keydown', handleEnterKeyToUpdate);
