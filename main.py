@@ -33,16 +33,9 @@ async def update_portfolio(alloc: AllocationInput):
     try:
         # Compute portfolio
         df = compute_portfolio('static/data/pf_data.json', alloc.spy_start, alloc.btc_start)
-        result_json_path = 'static/data/pf_value.json'
-        
-        # Write computed data to JSON
-        df.to_json(result_json_path, orient='records', date_format='iso')
-
-        # Respond back with the JSON data
-        with open(result_json_path, 'r') as f:
-            data = json.load(f)
-
-        return JSONResponse(content={"status": "success", "data": data})
+        # Convert DataFrame to JSON
+        json_data = df.to_json(orient='records', date_format='iso')
+        return JSONResponse(content={"status": "success", "data": json.loads(json_data)})
 
     except Exception as e:
         app.logger.error(f"Error updating portfolio: {e}")
