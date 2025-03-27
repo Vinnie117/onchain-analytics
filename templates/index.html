@@ -22,8 +22,16 @@
         </div>
         <div class="button-container">
             <button id="pfvalue-download" style="margin-bottom: 20px;">Download SVG</button>
-            <input type="text" id="allocation-btc" placeholder="X% allocation to BTC" style="margin-right: 5px;">
-            <input type="text" id="allocation-spy" placeholder="Y% allocation to SPY" style="margin-right: 5px;">
+            <div style="display: inline-block;">
+                <label for="allocation-btc">BTC: </label>
+                <input type="text" id="allocation-btc" placeholder="X% allocation">
+            </div>
+            <div style="display: inline-block;">
+                <label for="allocation-spy">SPY: </label>
+                <input type="text" id="allocation-spy" placeholder="Y% allocation">
+            </div>
+              
+            
             <button id="update-portfolio-btn">Apply Portfolio Allocation</button>
         </div>
     </div>
