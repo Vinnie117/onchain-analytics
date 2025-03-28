@@ -22,6 +22,7 @@ let groundHeight = 20;
 let slingOrigin = { x: 250, y: canvas.height - groundHeight - 150 };
 let slingSnapBackProgress = 0;
 let slingSnapping = false;
+let resetTimeout = null;
 
 let stone = {
   x: slingOrigin.x,
@@ -55,6 +56,10 @@ canvas.addEventListener("mousedown", (e) => {
     stone.isDragging = true;
     slingSnapping = false;
     slingSnapBackProgress = 0;
+    if (resetTimeout) {
+      clearTimeout(resetTimeout);
+      resetTimeout = null;
+    }
   }
 });
 
@@ -94,6 +99,7 @@ function resetStone() {
   stone.isFlying = false;
   slingSnapping = false;
   slingSnapBackProgress = 0;
+  resetTimeout = null;
 }
 
 function update() {
@@ -109,8 +115,8 @@ function update() {
       stone.y = canvas.height - groundHeight - stone.radius;
       stone.vy *= -restitution;
       stone.vx *= drag;
-      if (Math.abs(stone.vy) < 1 && Math.abs(stone.vx) < 1) {
-        resetStone();
+      if (Math.abs(stone.vy) < 1 && Math.abs(stone.vx) < 1 && !resetTimeout) {
+        resetTimeout = setTimeout(resetStone, 2000); // Wait 2 seconds before resetting
       }
     }
 
