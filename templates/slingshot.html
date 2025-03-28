@@ -1,155 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>2D Slingshot Simulation</title>
-  <style>
-    canvas {
+  <head>
+    <meta charset="UTF-8">
+    <title>2D Slingshot Simulation</title>
+    <style>
+      canvas {
       background: #f0f0f0;
       display: block;
       margin: 0 auto;
-    }
-  </style>
-</head>
-<body>
-<canvas id="gameCanvas" width="1600" height="700"></canvas>
-
-<script>
-const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-
-let groundHeight = 20;
-let slingOrigin = { x: 250, y: canvas.height - groundHeight - 150 };
-let slingSnapBackProgress = 0;
-let slingSnapping = false;
-let resetTimeout = null;
-
-let stone = {
-  x: slingOrigin.x,
-  y: slingOrigin.y,
-  radius: isMobile ? 30 : 10, 
-  vx: 0,
-  vy: 0,
-  ax: 0,
-  ay: 0,
-  isDragging: false,
-  isFlying: false
-};
-
-let gravity = 0.5;
-let drag = 0.99;
-let restitution = 0.4;
-
-
-function resetStone() {
-  stone.x = slingOrigin.x;
-  stone.y = slingOrigin.y;
-  stone.vx = 0;
-  stone.vy = 0;
-  stone.isFlying = false;
-  slingSnapping = false;
-  slingSnapBackProgress = 0;
-  resetTimeout = null;
-}
-
-function update() {
-  if (stone.isFlying) {
-    stone.vy += gravity;
-    stone.vx *= drag;
-    stone.vy *= drag;
-    stone.x += stone.vx;
-    stone.y += stone.vy;
-
-    // Bounce on floor
-    if (stone.y + stone.radius > canvas.height - groundHeight) {
-      stone.y = canvas.height - groundHeight - stone.radius;
-      stone.vy *= -restitution;
-      stone.vx *= drag;
-      if (Math.abs(stone.vy) < 1 && Math.abs(stone.vx) < 1 && !resetTimeout) {
-        resetTimeout = setTimeout(resetStone, 1500); // Wait 2 seconds before resetting
       }
-    }
-
-    // Bounce on left and right walls
-    if (stone.x - stone.radius < 0) {
-      stone.x = stone.radius;
-      stone.vx *= -restitution;
-    }
-    if (stone.x + stone.radius > canvas.width) {
-      stone.x = canvas.width - stone.radius;
-      stone.vx *= -restitution;
-    }
-  }
-
-  if (slingSnapping && slingSnapBackProgress < 1) {
-    slingSnapBackProgress += 0.1;
-    if (slingSnapBackProgress >= 1) {
-      slingSnapBackProgress = 1;
-      slingSnapping = false;
-    }
-  }
-}
-
-function drawGround() {
-  ctx.fillStyle = "#654321";
-  ctx.fillRect(0, canvas.height - groundHeight, canvas.width, groundHeight);
-}
-
-function drawSlingshotStick() {
-  const baseY = canvas.height - groundHeight;
-  ctx.beginPath();
-  ctx.moveTo(slingOrigin.x - 10, baseY);
-  ctx.lineTo(slingOrigin.x, slingOrigin.y);
-  ctx.lineTo(slingOrigin.x + 10, baseY);
-  ctx.strokeStyle = "saddlebrown";
-  ctx.lineWidth = 8;
-  ctx.stroke();
-}
-
-function drawSlingshot() {
-  if (stone.isDragging) {
-    ctx.beginPath();
-    ctx.moveTo(slingOrigin.x, slingOrigin.y);
-    ctx.lineTo(stone.x, stone.y);
-    ctx.strokeStyle = "brown";
-    ctx.lineWidth = 5;
-    ctx.stroke();
-  } else if (slingSnapping) {
-    const dx = stone.x - slingOrigin.x;
-    const dy = stone.y - slingOrigin.y;
-    const snapX = slingOrigin.x + dx * (1 - slingSnapBackProgress);
-    const snapY = slingOrigin.y + dy * (1 - slingSnapBackProgress);
-    ctx.beginPath();
-    ctx.moveTo(slingOrigin.x, slingOrigin.y);
-    ctx.lineTo(snapX, snapY);
-    ctx.strokeStyle = "brown";
-    ctx.lineWidth = 5;
-    ctx.stroke();
-  }
-}
-
-function drawStone() {
-  ctx.beginPath();
-  ctx.arc(stone.x, stone.y, stone.radius, 0, Math.PI * 2);
-  ctx.fillStyle = "gray";
-  ctx.fill();
-  ctx.stroke();
-}
-
-function gameLoop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawGround();
-  drawSlingshotStick();
-  drawSlingshot();
-  drawStone();
-  update();
-  requestAnimationFrame(gameLoop);
-}
-
-gameLoop();
-</script>
-<script src="{{ url_for('static', path='js/game/controls.js') }}"></script>
-</body>
+    </style>
+  </head>
+  <body>
+    <canvas id="gameCanvas" width="1600" height="700"></canvas>
+    <script type="module">
+      import { drawGround, drawSlingshot, drawSlingshotStick } from '/static/js/game/drawings.js';
+      import { setupControls } from '/static/js/game/controls.js';
+      
+      const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
+      
+      let groundHeight = 20;
+      let slingOrigin = { x: 250, y: canvas.height - groundHeight - 150 };
+      
+      let slingSnapState = {
+        snapping: false,
+        progress: 0
+      };
+      
+      let resetTimeoutRef = { current: null };
+      
+      let stone = {
+        x: slingOrigin.x,
+        y: slingOrigin.y,
+        radius: isMobile ? 30 : 10,
+        vx: 0,
+        vy: 0,
+        ax: 0,
+        ay: 0,
+        isDragging: false,
+        isFlying: false
+      };
+      
+      let gravity = 0.5;
+      let drag = 0.99;
+      let restitution = 0.4;
+      
+      function resetStone() {
+        stone.x = slingOrigin.x;
+        stone.y = slingOrigin.y;
+        stone.vx = 0;
+        stone.vy = 0;
+        stone.isFlying = false;
+        slingSnapState.snapping = false;
+        slingSnapState.progress = 0;
+        resetTimeoutRef.current = null;
+      }
+      
+      setupControls(canvas, stone, slingOrigin, groundHeight, resetTimeoutRef, slingSnapState);
+      
+      function update() {
+        if (stone.isFlying) {
+          stone.vy += gravity;
+          stone.vx *= drag;
+          stone.vy *= drag;
+          stone.x += stone.vx;
+          stone.y += stone.vy;
+      
+          if (stone.y + stone.radius > canvas.height - groundHeight) {
+            stone.y = canvas.height - groundHeight - stone.radius;
+            stone.vy *= -restitution;
+            stone.vx *= drag;
+            if (Math.abs(stone.vy) < 1 && Math.abs(stone.vx) < 1 && !resetTimeoutRef.current) {
+              resetTimeoutRef.current = setTimeout(resetStone, 1500);
+            }
+          }
+      
+          if (stone.x - stone.radius < 0) {
+            stone.x = stone.radius;
+            stone.vx *= -restitution;
+          }
+          if (stone.x + stone.radius > canvas.width) {
+            stone.x = canvas.width - stone.radius;
+            stone.vx *= -restitution;
+          }
+        }
+      
+        if (slingSnapState.snapping && slingSnapState.progress < 1) {
+          slingSnapState.progress += 0.1;
+          if (slingSnapState.progress >= 1) {
+            slingSnapState.progress = 1;
+            slingSnapState.snapping = false;
+          }
+        }
+      }
+      
+      function drawStone() {
+        ctx.beginPath();
+        ctx.arc(stone.x, stone.y, stone.radius, 0, Math.PI * 2);
+        ctx.fillStyle = "gray";
+        ctx.fill();
+        ctx.stroke();
+      }
+      
+      function gameLoop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+        drawGround(ctx, canvas, groundHeight);
+        drawSlingshotStick(ctx, canvas, slingOrigin, groundHeight);
+        drawSlingshot(ctx, stone, slingOrigin, slingSnapState.snapping, slingSnapState.progress);
+      
+        drawStone();
+        update();
+        requestAnimationFrame(gameLoop);
+      }
+      
+      gameLoop();
+    </script>
+  </body>
 </html>
