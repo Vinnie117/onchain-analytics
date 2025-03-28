@@ -22,6 +22,10 @@ templates = Jinja2Templates(directory="templates")
 async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get("/game", response_class=HTMLResponse)
+async def game(request: Request):
+    return templates.TemplateResponse("slingshot.html", {"request": request})
+
 
 
 class AllocationInput(BaseModel):

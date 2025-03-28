@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>2D Slingshot Simulation</title>
+  <style>
+    canvas {
+      background: #f0f0f0;
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+<canvas id="gameCanvas" width="1600" height="700"></canvas>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+let groundHeight = 20;
+let slingOrigin = { x: 250, y: canvas.height - groundHeight - 150 };
+let stone = {
+  x: slingOrigin.x,
+  y: slingOrigin.y,
+  radius: 10,
+  vx: 0,
+  vy: 0,
+  ax: 0,
+  ay: 0,
+  isDragging: false,
+  isFlying: false
+};
+
+let gravity = 0.5;
+let drag = 0.99;
+let restitution = 0.4;
+
+function getMousePos(e) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top
+  };
+}
+
+canvas.addEventListener("mousedown", (e) => {
+  const { x: mouseX, y: mouseY } = getMousePos(e);
+  const dx = mouseX - stone.x;
+  const dy = mouseY - stone.y;
+  if (Math.sqrt(dx * dx + dy * dy) < stone.radius * 2 && !stone.isFlying) {
+    stone.isDragging = true;
+  }
+});
+
+canvas.addEventListener("mousemove", (e) => {
+  if (stone.isDragging) {
+    const { x: mouseXRaw, y: mouseYRaw } = getMousePos(e);
+    let mouseX = mouseXRaw;
+    let mouseY = mouseYRaw;
+
+    const dx = mouseX - slingOrigin.x;
+    if (dx > 0) mouseX = slingOrigin.x; // Don't allow dragging forward
+    if (mouseY > canvas.height - groundHeight - stone.radius) {
+      mouseY = canvas.height - groundHeight - stone.radius;
+    }
+
+    stone.x = mouseX;
+    stone.y = mouseY;
+  }
+});
+
+window.addEventListener("mouseup", () => {
+  if (stone.isDragging) {
+    stone.isDragging = false;
+    stone.isFlying = true;
+    stone.vx = (slingOrigin.x - stone.x) * 0.2; // reduced speed
+    stone.vy = (slingOrigin.y - stone.y) * 0.2; // reduced speed
+  }
+});
+
+function resetStone() {
+  stone.x = slingOrigin.x;
+  stone.y = slingOrigin.y;
+  stone.vx = 0;
+  stone.vy = 0;
+  stone.isFlying = false;
+}
+
+function update() {
+  if (stone.isFlying) {
+    stone.vy += gravity;
+    stone.vx *= drag;
+    stone.vy *= drag;
+    stone.x += stone.vx;
+    stone.y += stone.vy;
+
+    // Bounce on floor
+    if (stone.y + stone.radius > canvas.height - groundHeight) {
+      stone.y = canvas.height - groundHeight - stone.radius;
+      stone.vy *= -restitution;
+      stone.vx *= drag;
+      if (Math.abs(stone.vy) < 1 && Math.abs(stone.vx) < 1) {
+        resetStone();
+      }
+    }
+
+    // Bounce on left and right walls
+    if (stone.x - stone.radius < 0) {
+      stone.x = stone.radius;
+      stone.vx *= -restitution;
+    }
+    if (stone.x + stone.radius > canvas.width) {
+      stone.x = canvas.width - stone.radius;
+      stone.vx *= -restitution;
+    }
+  }
+}
+
+function drawGround() {
+  ctx.fillStyle = "#654321";
+  ctx.fillRect(0, canvas.height - groundHeight, canvas.width, groundHeight);
+}
+
+function drawSlingshotStick() {
+  const baseY = canvas.height - groundHeight;
+  ctx.beginPath();
+  ctx.moveTo(slingOrigin.x - 10, baseY);
+  ctx.lineTo(slingOrigin.x, slingOrigin.y);
+  ctx.lineTo(slingOrigin.x + 10, baseY);
+  ctx.strokeStyle = "saddlebrown";
+  ctx.lineWidth = 8;
+  ctx.stroke();
+}
+
+function drawSlingshot() {
+  ctx.beginPath();
+  ctx.moveTo(slingOrigin.x, slingOrigin.y);
+  ctx.lineTo(stone.x, stone.y);
+  ctx.strokeStyle = "brown";
+  ctx.lineWidth = 5;
+  ctx.stroke();
+}
+
+function drawStone() {
+  ctx.beginPath();
+  ctx.arc(stone.x, stone.y, stone.radius, 0, Math.PI * 2);
+  ctx.fillStyle = "gray";
+  ctx.fill();
+  ctx.stroke();
+}
+
+function gameLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawGround();
+  drawSlingshotStick();
+  drawSlingshot();
+  drawStone();
+  update();
+  requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+</body>
+</html>
