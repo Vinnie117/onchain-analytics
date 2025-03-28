@@ -32,7 +32,7 @@ class AllocationInput(BaseModel):
 async def update_portfolio(alloc: AllocationInput):
     try:
         # Compute portfolio
-        df = compute_portfolio('static/data/pf_data.json', alloc.spy_start, alloc.btc_start)
+        df = compute_portfolio(alloc.spy_start, alloc.btc_start)
         # Convert DataFrame to JSON
         json_data = df.to_json(orient='records', date_format='iso')
         return JSONResponse(content={"status": "success", "data": json.loads(json_data)})

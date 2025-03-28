@@ -1,7 +1,7 @@
 import pandas as pd
 import yfinance as yf
 
-def compute_portfolio(df_path, spy_start, btc_start):
+def compute_portfolio(spy_start, btc_start):
 
     # Get SPY data
     spy = yf.Ticker("SPY")
