@@ -20,6 +20,9 @@ const ctx = canvas.getContext("2d");
 
 let groundHeight = 20;
 let slingOrigin = { x: 250, y: canvas.height - groundHeight - 150 };
+let slingSnapBackProgress = 0;
+let slingSnapping = false;
+
 let stone = {
   x: slingOrigin.x,
   y: slingOrigin.y,
@@ -50,6 +53,8 @@ canvas.addEventListener("mousedown", (e) => {
   const dy = mouseY - stone.y;
   if (Math.sqrt(dx * dx + dy * dy) < stone.radius * 2 && !stone.isFlying) {
     stone.isDragging = true;
+    slingSnapping = false;
+    slingSnapBackProgress = 0;
   }
 });
 
@@ -76,6 +81,8 @@ window.addEventListener("mouseup", () => {
     stone.isFlying = true;
     stone.vx = (slingOrigin.x - stone.x) * 0.2; // reduced speed
     stone.vy = (slingOrigin.y - stone.y) * 0.2; // reduced speed
+    slingSnapping = true;
+    slingSnapBackProgress = 0;
   }
 });
 
@@ -85,6 +92,8 @@ function resetStone() {
   stone.vx = 0;
   stone.vy = 0;
   stone.isFlying = false;
+  slingSnapping = false;
+  slingSnapBackProgress = 0;
 }
 
 function update() {
@@ -115,6 +124,14 @@ function update() {
       stone.vx *= -restitution;
     }
   }
+
+  if (slingSnapping && slingSnapBackProgress < 1) {
+    slingSnapBackProgress += 0.1;
+    if (slingSnapBackProgress >= 1) {
+      slingSnapBackProgress = 1;
+      slingSnapping = false;
+    }
+  }
 }
 
 function drawGround() {
@@ -134,12 +151,25 @@ function drawSlingshotStick() {
 }
 
 function drawSlingshot() {
-  ctx.beginPath();
-  ctx.moveTo(slingOrigin.x, slingOrigin.y);
-  ctx.lineTo(stone.x, stone.y);
-  ctx.strokeStyle = "brown";
-  ctx.lineWidth = 5;
-  ctx.stroke();
+  if (stone.isDragging) {
+    ctx.beginPath();
+    ctx.moveTo(slingOrigin.x, slingOrigin.y);
+    ctx.lineTo(stone.x, stone.y);
+    ctx.strokeStyle = "brown";
+    ctx.lineWidth = 5;
+    ctx.stroke();
+  } else if (slingSnapping) {
+    const dx = stone.x - slingOrigin.x;
+    const dy = stone.y - slingOrigin.y;
+    const snapX = slingOrigin.x + dx * (1 - slingSnapBackProgress);
+    const snapY = slingOrigin.y + dy * (1 - slingSnapBackProgress);
+    ctx.beginPath();
+    ctx.moveTo(slingOrigin.x, slingOrigin.y);
+    ctx.lineTo(snapX, snapY);
+    ctx.strokeStyle = "brown";
+    ctx.lineWidth = 5;
+    ctx.stroke();
+  }
 }
 
 function drawStone() {
