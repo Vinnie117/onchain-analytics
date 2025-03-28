@@ -1,8 +1,36 @@
 import pandas as pd
+import yfinance as yf
 
 def compute_portfolio(df_path, spy_start, btc_start):
-    # Read the JSON file
-    df = pd.read_json(df_path)
+
+    # Get SPY data
+    spy = yf.Ticker("SPY")
+    history_spy = spy.history(period='5y')
+    price_spy = history_spy['Close']
+
+    # Get BTC data
+    btc = yf.Ticker("BTC-USD")
+    history_btc = btc.history(period='5y')
+    price_btc = history_btc['Close']
+
+    # remove time and timezone
+    price_spy.index = price_spy.index.tz_localize(None).normalize()
+    price_btc.index = price_btc.index.tz_localize(None).normalize()
+
+
+    df = pd.concat([price_spy, price_btc], axis=1)
+    df.columns = ['SPY', 'BTC']
+
+    # forward fill last available observation in case of NaN (weekends)
+    df['SPY'] = df['SPY'].ffill()
+    df['BTC'] = df['BTC'].ffill()
+
+    df['SPY_daily_ret'] = 1 + df['SPY'].pct_change(1, fill_method=None)
+    df['BTC_daily_ret'] = 1 + df['BTC'].pct_change(1, fill_method=None)
+    df = df.reset_index().rename(columns={'index': 'Date'})
+
+    # # Read a pf from a JSON file
+    # df = pd.read_json(df_path)
 
     # Select relevant columns
     df = df[['Date', 'SPY_daily_ret', 'BTC_daily_ret']]
