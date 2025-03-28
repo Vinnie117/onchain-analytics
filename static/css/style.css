@@ -95,3 +95,13 @@ button {
     white-space: nowrap; /* Ensures messages stay on a single line */
     overflow-x: hidden; /* Hide horizontal overflow */
 }
+
+.slider-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+input[type=range] {
+width: 250px;
+}

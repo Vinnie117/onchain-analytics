@@ -38,6 +38,38 @@
 
     <hr style="margin: 75px 0; border: none; border-top: 2px solid #ccc;">
 
+    <h2 id="pf-mdd-heading">Max Drawdowns </h2>
+    <div class="container">
+        <div class="svg-container">
+            <svg id="pf-mdd-plot" width="900" height="500"></svg>
+            <div id="pf-mdd-tooltip" style="position: absolute; display: none; pointer-events: none;"></div>
+        </div>
+
+        <div class="button-container">
+            <button id="pf-mdd-download" style="margin-bottom: 20px;">Download SVG</button>
+            <div style="display: inline-block;">
+                <label for="allocation-btc">BTC: </label>
+                <input type="text" id="allocation-btc-mdd" placeholder="X% allocation">
+            </div>
+            <div style="display: inline-block;">
+                <label for="allocation-spy">SPY: </label>
+                <input type="text" id="allocation-spy-mdd" placeholder="(1-X%) allocation">
+            </div>
+
+            <button id="update-portfolio-mdd-btn">Apply Portfolio Allocation</button>
+            
+            <div class="slider-container" style="margin-top: 20px; display: flex; flex-direction: column; align-items: flex-start; gap: 0px;">
+                <label for="mySlider" style="text-align: left;">Max drawdown window:</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="range" id="mySlider" min="30" max="180" value="30">
+                    <span id="sliderValue">30</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr style="margin: 75px 0; border: none; border-top: 2px solid #ccc;">
+
     <h2>Top 20 Bitcoin Holders</h2>
     <div class="container">
         <div class="svg-container">
@@ -122,6 +154,7 @@
     <script src="{{ url_for('static', path='js/scatterMatrix.js') }}"></script>
     <script src="{{ url_for('static', path='js/scatterplot.js') }}"></script>
     <script src="{{ url_for('static', path='js/ageBands.js') }}"></script>
+    <script src="{{ url_for('static', path='js/drawdown.js') }}"></script>
     <script src="{{ url_for('static', path='js/windowOnLoad.js') }}"></script>
 
 </body>
