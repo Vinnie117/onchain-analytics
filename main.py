@@ -24,7 +24,7 @@ async def index(request: Request):
 
 @app.get("/game", response_class=HTMLResponse)
 async def game(request: Request):
-    return templates.TemplateResponse("slingshot.html", {"request": request})
+    return templates.TemplateResponse("game.html", {"request": request})
 
 
 
