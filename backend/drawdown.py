@@ -65,21 +65,18 @@ if __name__ == "__main__":
 
     # df.to_json('static/data/pf_dd_data.json', index=False, orient='records', date_format='iso')
 
-    # # Compute SPY portfolio value
-    # df['SPY_pf'] = spy_start * df['SPY_daily_ret'].cumprod()
-    # df.loc[df.index[0], 'SPY_pf'] = spy_start  # Set first value correctly
-
-    # # Compute BTC portfolio value
-    # df['BTC_pf'] = btc_start * df['BTC_daily_ret'].cumprod()
-    # df.loc[df.index[0], 'BTC_pf'] = btc_start
-
-    # df['combined_pf'] = df['SPY_pf'] + df['BTC_pf'] 
-
-
-    # df.to_json('static/data/pf_dd_data.json', index=False, orient='records', date_format='iso')
-
     # use static data for this case
     df = pd.read_json('static/data/pf_dd_data.json')
+
+    # Compute SPY portfolio value
+    df['SPY_pf'] = spy_start * df['SPY_daily_ret'].cumprod()
+    df.loc[df.index[0], 'SPY_pf'] = spy_start  # Set first value correctly
+
+    # Compute BTC portfolio value
+    df['BTC_pf'] = btc_start * df['BTC_daily_ret'].cumprod()
+    df.loc[df.index[0], 'BTC_pf'] = btc_start
+
+    df['combined_pf'] = df['SPY_pf'] + df['BTC_pf'] 
 
     combined_pf_series = df['combined_pf']
     window_size = 20  # Adjust as needed
