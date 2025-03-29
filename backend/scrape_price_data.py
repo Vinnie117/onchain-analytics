@@ -38,4 +38,5 @@ print(df.head(10))
 print(df.dtypes)
 print(df.tail(10))
 
-df.to_json('static/data/pf_data.json', index=False, orient='records')
+# # This is static
+# df.to_json('static/data/pf_data.json', index=False, orient='records')
