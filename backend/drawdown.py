@@ -63,20 +63,21 @@ if __name__ == "__main__":
     # df['BTC_daily_ret'] = 1 + df['BTC'].pct_change(1, fill_method=None)
     # df = df.reset_index().rename(columns={'index': 'Date'})
 
-    # # Compute SPY portfolio value
-    # df['SPY_pf'] = spy_start * df['SPY_daily_ret'].cumprod()
-    # df.loc[df.index[0], 'SPY_pf'] = spy_start  # Set first value correctly
-
-    # # Compute BTC portfolio value
-    # df['BTC_pf'] = btc_start * df['BTC_daily_ret'].cumprod()
-    # df.loc[df.index[0], 'BTC_pf'] = btc_start
-
-    # df['combined_pf'] = df['SPY_pf'] + df['BTC_pf'] 
-
-    # df.to_json('static/data/pf_dd_data.json', index=False, orient='records', date_format='iso')
+    # df.to_json('static/data/pf_data_static.json', index=False, orient='records', date_format='iso')
 
     # # use static data for this case
-    df = pd.read_json('static/data/pf_dd_data.json')
+    df = pd.read_json('static/data/pf_data_static.json')
+
+    # Compute SPY portfolio value
+    df['SPY_pf'] = spy_start * df['SPY_daily_ret'].cumprod()
+    df.loc[df.index[0], 'SPY_pf'] = spy_start  # Set first value correctly
+
+    # Compute BTC portfolio value
+    df['BTC_pf'] = btc_start * df['BTC_daily_ret'].cumprod()
+    df.loc[df.index[0], 'BTC_pf'] = btc_start
+
+    df['combined_pf'] = df['SPY_pf'] + df['BTC_pf'] 
+
 
     combined_pf_series = df['combined_pf']
     window_size = 20  # Adjust as needed
@@ -84,3 +85,6 @@ if __name__ == "__main__":
     portfolio_dd_df = portfolio_rolling_max_dd_from_series(combined_pf_series, window_size)
 
     print(portfolio_dd_df)
+
+    # data for js plot
+    df.to_json('static/data/pf_dd_data.json', index=False, orient='records', date_format='iso')

@@ -26,8 +26,6 @@ async def index(request: Request):
 async def game(request: Request):
     return templates.TemplateResponse("game.html", {"request": request})
 
-
-
 class AllocationInput(BaseModel):
     spy_start: float
     btc_start: float
