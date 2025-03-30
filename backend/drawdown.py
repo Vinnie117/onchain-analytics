@@ -31,11 +31,35 @@ def portfolio_rolling_max_dd_from_series(series, window_size, min_periods=1):
     }, index=series.index)
     return portfolio_dd_df 
 
+def compute_portfolio_dd(spy_start, btc_start, window_size):
+    # # use static data for this case
+    df = pd.read_json('static/data/pf_data_static.json')
+
+    # Compute SPY portfolio value
+    df['SPY_pf'] = spy_start * df['SPY_daily_ret'].cumprod()
+    df.loc[df.index[0], 'SPY_pf'] = spy_start  # Set first value correctly
+
+    # Compute BTC portfolio value
+    df['BTC_pf'] = btc_start * df['BTC_daily_ret'].cumprod()
+    df.loc[df.index[0], 'BTC_pf'] = btc_start
+
+    df['combined_pf'] = df['SPY_pf'] + df['BTC_pf'] 
+
+    combined_pf_series = df['combined_pf']
+
+    portfolio_dd_df = portfolio_rolling_max_dd_from_series(combined_pf_series, window_size)
+    portfolio_dd_df = portfolio_dd_df.assign(Date=df['Date'])[
+        ['Date', 'Portfolio_Value', 'Rolling_Max_Drawdown_Pct']
+    ]
+
+    return portfolio_dd_df
+
 
 if __name__ == "__main__":
 
     spy_start = 100
     btc_start = 100
+    window_size = 30 
 
     # # Get SPY data
     # spy = yf.Ticker("SPY")
@@ -78,13 +102,16 @@ if __name__ == "__main__":
 
     df['combined_pf'] = df['SPY_pf'] + df['BTC_pf'] 
 
+    print(df)
 
     combined_pf_series = df['combined_pf']
-    window_size = 20  # Adjust as needed
 
     portfolio_dd_df = portfolio_rolling_max_dd_from_series(combined_pf_series, window_size)
+    portfolio_dd_df = portfolio_dd_df.assign(Date=df['Date'])[
+        ['Date', 'Portfolio_Value', 'Rolling_Max_Drawdown_Pct']
+    ]
 
     print(portfolio_dd_df)
 
     # data for js plot
-    df.to_json('static/data/pf_dd_data.json', index=False, orient='records', date_format='iso')
+    portfolio_dd_df.to_json('static/data/pf_dd_data.json', index=False, orient='records', date_format='iso')

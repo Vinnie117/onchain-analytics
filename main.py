@@ -4,6 +4,7 @@ from fastapi.responses import StreamingResponse, HTMLResponse
 from backend.scrape import scrape_data, server_scrape_data
 from backend.logger import logger
 from backend.portfolio_value import compute_portfolio
+from backend.drawdown import compute_portfolio_dd
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -41,6 +42,19 @@ async def update_portfolio(alloc: AllocationInput):
 
     except Exception as e:
         app.logger.error(f"Error updating portfolio: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/update-portfolio-dd")
+async def update_portfolio_dd(alloc: AllocationInput):
+    try:
+        # Compute portfolio max drawdown
+        df = compute_portfolio_dd(alloc.spy_start, alloc.btc_start, window_size=30)
+        # Convert DataFrame to JSON
+        json_data = df.to_json(orient='records', date_format='iso')
+        return JSONResponse(content={"status": "success", "data": json.loads(json_data)})
+
+    except Exception as e:
+        app.logger.error(f"Error updating drawdown portfolio: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
