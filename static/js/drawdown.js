@@ -57,7 +57,7 @@ function updateDrawdownChart(data) {
 
   // Shared X-axis (placed between charts)
   drawdown_svg.append("g")
-    .attr("transform", `translate(${marginDrawdown.left},${marginDrawdown.top + heightDrawdown + 30})`)
+    .attr("transform", `translate(${marginDrawdown.left},${marginDrawdown.top + heightDrawdown + 30})`)  // +0 for touching axes
     .call(d3.axisBottom(x));
     
   // Upper Y-axis
@@ -70,8 +70,6 @@ function updateDrawdownChart(data) {
       d3.axisLeft(yDrawdown)
           .tickFormat(d => `${(d * 100).toFixed(0)}%`)
   );
-
-
 
   // Y-axis label
   drawdown_chart_top.append("text")
@@ -93,49 +91,6 @@ function updateDrawdownChart(data) {
   .style("font-size", "16px")
   .style("font-weight", "bold")
   .text("Max Drawdown");
-
-
-  // Legend
-  const legend = drawdown_chart_top.append("g")
-  .attr("class", "legend")
-  .attr("transform", "translate(0, -30)");
-
-  const legendItems = [
-  { name: "Portfolio Value", color: "#4682b4", isLine: true }
-  ];
-
-  legend.selectAll("g")
-  .data(legendItems)
-  .enter()
-  .append("g")
-  .attr("transform", (d, i) => `translate(${i * 100}, 0)`)
-  .each(function(d) {
-      const g = d3.select(this);
-      
-      if (d.isLine) {
-          g.append("line")
-              .attr("x1", 0)
-              .attr("y1", 5)
-              .attr("x2", 20)
-              .attr("y2", 5)
-              .attr("stroke", d.color)
-              .attr("stroke-width", 2);
-      } else {
-          g.append("rect")
-              .attr("x", 0)
-              .attr("y", -5)
-              .attr("width", 20)
-              .attr("height", 10)
-              .attr("fill", d.color);
-      }
-
-      g.append("text")
-          .attr("x", 25)
-          .attr("y", 5)
-          .attr("dy", "0.35em")
-          .style("font-size", "12px")
-          .text(d.name);
-  });
 
 
   // Draw PF line
@@ -211,7 +166,8 @@ function updateDrawdownChart(data) {
               .style("top", `${event.pageY + 15}px`)
               .html(`
                   <strong>${d.date.toLocaleDateString()}</strong><br>
-                  Combined: ${d.Combined.toFixed(2)}
+                  Portfolio value: ${d.Combined.toFixed(2)}<br>
+                  Drawdown: ${(d.Rolling_Max_Drawdown_Pct * 100).toFixed(2)}%
               `);
       });
 }
