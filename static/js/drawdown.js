@@ -39,8 +39,9 @@ function updateDrawdownChart(data) {
 
   // Upper Y scale
   const maxValueUpper = d3.max(parsedData, d => d.Combined);
-  const desiredTicksUpper = d3.range(100, maxValueUpper, 50);
-
+  const minValueUpper = d3.min(parsedData, d => d.Combined);
+  
+  const desiredTicksUpper = d3.ticks(minValueUpper, maxValueUpper, 5);
   const yValue = d3.scaleLinear()
     .domain(d3.extent(parsedData, d => d.Combined)).nice()  // .domain([0, d3.max(parsedData, d => d.Combined)]).nice()
     .range([heightDrawdown, 0]);
@@ -218,8 +219,8 @@ document.getElementById("update-portfolio-mdd-btn").addEventListener("click", ()
       alert("Error updating portfolio data.");
   });
   // //Update heading with new values
-  // const heading = document.getElementById('pfvalue-heading');
-  // heading.innerText = `Portfolio Value for: ${spyAllocation}% SPY and ${btcAllocation}% BTC`;
+  const heading = document.getElementById('pf-mdd-heading');
+  heading.innerText = `Portfolio Value and Max Drawdown for: ${spyAllocation}% SPY and ${btcAllocation}% BTC`;
 });
 
 // Enter button

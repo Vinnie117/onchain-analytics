@@ -29,7 +29,14 @@ window.onload = () => {
     const heading = document.getElementById('pfvalue-heading');
     heading.innerText = `Portfolio Value for: ${defaultSpyAlloc}% SPY and ${defaultBtcAlloc}% BTC`;
 
+    // Max drawdown
     document.getElementById('allocation-btc-mdd').value = '';
     document.getElementById('allocation-spy-mdd').value = '';
+    const defaultSpyAllocMdd = 97;
+    const defaultBtcAllocMdd = 3;
+    const headingMdd = document.getElementById('pf-mdd-heading');
+    headingMdd.innerText = `Portfolio Value and Max Drawdown for: ${defaultSpyAllocMdd}% SPY and ${defaultBtcAllocMdd}% BTC`;
+
+
 
 };
