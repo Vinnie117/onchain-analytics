@@ -147,7 +147,7 @@ function updateDrawdownChart(data) {
   const tooltipLine = drawdown_chart_top.append("line")
       .attr("stroke", "#000")
       .attr("y1", 0)
-      .attr("y2", heightArea)
+      .attr("y2", fullHeight)
       .attr("stroke-width", 1)
       .attr("stroke-dasharray", "3,3")
       .style("display", "none");
@@ -165,8 +165,8 @@ function updateDrawdownChart(data) {
 
   // Interaction
   drawdown_chart_top.append("rect")
-      .attr("width", widthArea)
-      .attr("height", heightArea)
+      .attr("width", fullWidth)
+      .attr("height", fullHeight)
       .attr("fill", "none")
       .attr("pointer-events", "all")
       .on("mouseover", () => {
