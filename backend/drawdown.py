@@ -59,8 +59,8 @@ def compute_portfolio_dd(spy_start, btc_start, window_size):
 
 if __name__ == "__main__":
 
-    spy_start = 100
-    btc_start = 100
+    spy_start = 97
+    btc_start = 3
     window_size = 30 
 
     # # Get SPY data
