@@ -48,8 +48,10 @@ def compute_portfolio_dd(spy_start, btc_start, window_size):
     combined_pf_series = df['combined_pf']
 
     portfolio_dd_df = portfolio_rolling_max_dd_from_series(combined_pf_series, window_size)
+    portfolio_dd_df['SPY_pf'] = df['SPY_pf']
+    portfolio_dd_df['BTC_pf'] = df['BTC_pf']
     portfolio_dd_df = portfolio_dd_df.assign(Date=df['Date'])[
-        ['Date', 'Portfolio_Value', 'Rolling_Max_Drawdown_Pct']
+        ['Date', 'BTC_pf', 'SPY_pf', 'Portfolio_Value', 'Rolling_Max_Drawdown_Pct']
     ]
 
     return portfolio_dd_df
