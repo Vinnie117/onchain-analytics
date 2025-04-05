@@ -146,7 +146,7 @@ function updateDrawdownChart(data) {
   const tooltipLine = drawdown_chart_top.append("line")
       .attr("stroke", "#000")
       .attr("y1", 0)
-      .attr("y2", fullHeight-60)
+      .attr("y2", fullHeight-30)
       .attr("stroke-width", 1)
       .attr("stroke-dasharray", "3,3")
       .style("display", "none");
