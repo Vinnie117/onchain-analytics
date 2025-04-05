@@ -49,6 +49,7 @@ async def update_portfolio_dd(alloc: AllocationInput):
     try:
         # Compute portfolio max drawdown
         df = compute_portfolio_dd(alloc.spy_start, alloc.btc_start, window_size=30)
+        print(df)
         # Convert DataFrame to JSON
         json_data = df.to_json(orient='records', date_format='iso')
         return JSONResponse(content={"status": "success", "data": json.loads(json_data)})

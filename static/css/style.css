@@ -1,3 +1,16 @@
+.responsive-banner {
+    width: 10%;                  /* default width for large screens */
+    max-width: 100%;             
+    display: block;              
+    margin: 20px auto 0 auto;    
+}
+
+@media (max-width: 600px) {      /* Adjust width on screens smaller than 600px */
+    .responsive-banner {
+        width: 50%;              /* increase width for mobile screens */
+    }
+}
+
 body {
     margin: 0;
     padding: 20px;
