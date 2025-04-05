@@ -1,50 +1,70 @@
-// Select SVG and define margins/dimensions
+// Select SVG and define dimensions
 const drawdown_svg = d3.select("#pf-mdd-plot"),
-    marginDrawdown = { top: 60, right: 10, bottom: 20, left: 75 },
-    widthDrawdown = +drawdown_svg.attr("width") - marginDrawdown.left - marginDrawdown.right,
-    heightDrawdown = +drawdown_svg.attr("height") - marginDrawdown.top - marginDrawdown.bottom;
+    marginDrawdown = { top: 20, right: 20, bottom: 20, left: 75 },
+    fullWidth = +drawdown_svg.attr("width"),
+    fullHeight = +drawdown_svg.attr("height"),
+    heightDrawdown = (fullHeight - marginDrawdown.top - marginDrawdown.bottom) / 2 - 30,
+    widthDrawdown = fullWidth - marginDrawdown.left - marginDrawdown.right;
 
-// SVG group container
-const drawdown_chart = drawdown_svg.append("g")
+drawdown_svg.selectAll("*").remove(); // Clear SVG on redraw
+
+// Create groups for each chart
+const drawdown_chart_top = drawdown_svg.append("g")
     .attr("transform", `translate(${marginDrawdown.left},${marginDrawdown.top})`);
 
+const drawdown_chart_bottom = drawdown_svg.append("g")
+    .attr("transform", `translate(${marginDrawdown.left},${marginDrawdown.top + heightDrawdown + 60})`);
 
 function updateDrawdownChart(data) {
   // Format and clean data
   const parsedData = data.map(d => ({
       date: new Date(d.Date),
-      Combined: d.Portfolio_Value || 0
+      Combined: d.Portfolio_Value || 0,
+      Rolling_Max_Drawdown_Pct: d.Rolling_Max_Drawdown_Pct || 0
   }));
 
   // Clear previous chart
-  drawdown_chart.selectAll("*").remove();
+  drawdown_chart_top.selectAll("*").remove();
+  drawdown_chart_bottom.selectAll("*").remove();
 
-  // Scales
+  // Add transparent colors
+  const color = d3.scaleOrdinal()
+    .domain(["Combined"])
+    .range(["#4682b4"]);
+
+  // Shared X scale
   const x = d3.scaleUtc()
     .domain(d3.extent(parsedData, d => d.date))
     .range([0, widthDrawdown]);
 
-  const y = d3.scaleLinear()
-    .domain(d3.extent(parsedData, d => d.Combined))
-    .nice()
+  // Upper Y scale
+  const yValue = d3.scaleLinear()
+    .domain(d3.extent(parsedData, d => d.Combined)).nice()
+    .range([heightDrawdown, 0]);
+
+  // Lower Y scale
+  const yDrawdown = d3.scaleLinear()
+    .domain([d3.min(parsedData, d => d.Rolling_Max_Drawdown_Pct), 0]).nice()
     .range([heightDrawdown, 0]);
 
 
-  // Add transparent colors
-  const color = d3.scaleOrdinal()
-      .domain(["Combined"])
-      .range(["#4682b4"]);
+  // Shared X-axis (placed between charts)
+  drawdown_svg.append("g")
+    .attr("transform", `translate(${marginDrawdown.left},${marginDrawdown.top + heightDrawdown + 30})`)
+    .call(d3.axisBottom(x));
+    
+  // Upper Y-axis
+  drawdown_chart_top.append("g")
+    .call(d3.axisLeft(yValue));
 
-  // Axes
-  drawdown_chart.append("g")
-      .attr("transform", `translate(0,${heightDrawdown})`)
-      .call(d3.axisBottom(x));
+  // Lower chart Y-axis
+  drawdown_chart_bottom.append("g")
+    .call(d3.axisLeft(yDrawdown));
 
-  drawdown_chart.append("g")
-  .call(d3.axisLeft(y));
+
 
   // Y-axis label
-  drawdown_chart.append("text")
+  drawdown_chart_top.append("text")
   .attr("transform", "rotate(-90)")
   .attr("y", -50) // adjust for spacing from the axis
   .attr("x", -heightDrawdown / 2)
@@ -56,7 +76,7 @@ function updateDrawdownChart(data) {
 
 
   // Legend
-  const legend = drawdown_chart.append("g")
+  const legend = drawdown_chart_top.append("g")
   .attr("class", "legend")
   .attr("transform", "translate(0, -30)");
 
@@ -101,17 +121,30 @@ function updateDrawdownChart(data) {
   // Draw PF line
   const combinedLine = d3.line()
       .x(d => x(d.date))
-      .y(d => y(d.Combined));
+      .y(d => yValue(d.Combined));
 
-  drawdown_chart.append("path")
-      .datum(parsedData)
-      .attr("fill", "none")
-      .attr("stroke", "#4682b4")
-      .attr("stroke-width", 2)
-      .attr("d", combinedLine);
+  drawdown_chart_top.append("path")
+    .datum(parsedData)
+    .attr("fill", "none")
+    .attr("stroke", "#4682b4")
+    .attr("stroke-width", 2)
+    .attr("d", combinedLine);
+
+  // Draw Drawdown line
+  const drawdownLine = d3.line()
+    .x(d => x(d.date))
+    .y(d => yDrawdown(d.Rolling_Max_Drawdown_Pct));
+
+  drawdown_chart_bottom.append("path")
+    .datum(parsedData)
+    .attr("fill", "none")
+    .attr("stroke", "#4682b4")
+    .attr("stroke-width", 2)
+    .attr("d", drawdownLine);
+
 
   // Tooltip line
-  const tooltipLine = drawdown_chart.append("line")
+  const tooltipLine = drawdown_chart_top.append("line")
       .attr("stroke", "#000")
       .attr("y1", 0)
       .attr("y2", heightArea)
@@ -131,7 +164,7 @@ function updateDrawdownChart(data) {
       .style("display", "none");
 
   // Interaction
-  drawdown_chart.append("rect")
+  drawdown_chart_top.append("rect")
       .attr("width", widthArea)
       .attr("height", heightArea)
       .attr("fill", "none")
