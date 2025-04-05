@@ -38,9 +38,16 @@ function updateDrawdownChart(data) {
     .range([0, widthDrawdown]);
 
   // Upper Y scale
+  const maxValueUpper = d3.max(parsedData, d => d.Combined);
+  const desiredTicksUpper = d3.range(100, maxValueUpper, 50);
+
   const yValue = d3.scaleLinear()
     .domain(d3.extent(parsedData, d => d.Combined)).nice()  // .domain([0, d3.max(parsedData, d => d.Combined)]).nice()
     .range([heightDrawdown, 0]);
+
+  const yAxisUpper = d3.axisLeft(yValue)
+    .tickValues(desiredTicksUpper);
+
 
   // Lower Y scale
   const yDrawdown = d3.scaleLinear()
@@ -55,23 +62,37 @@ function updateDrawdownChart(data) {
     
   // Upper Y-axis
   drawdown_chart_top.append("g")
-    .call(d3.axisLeft(yValue));
+    .call(yAxisUpper);
 
   // Lower chart Y-axis
   drawdown_chart_bottom.append("g")
-    .call(d3.axisLeft(yDrawdown));
+  .call(
+      d3.axisLeft(yDrawdown)
+          .tickFormat(d => `${(d * 100).toFixed(0)}%`)
+  );
+
 
 
   // Y-axis label
   drawdown_chart_top.append("text")
   .attr("transform", "rotate(-90)")
-  .attr("y", -50) // adjust for spacing from the axis
+  .attr("y", -60) // adjust for spacing from the axis
   .attr("x", -heightDrawdown / 2)
   .attr("dy", "1em")
   .style("text-anchor", "middle")
   .style("font-size", "16px")
   .style("font-weight", "bold")
   .text("Portfolio Value");
+
+  drawdown_chart_bottom.append("text")
+  .attr("transform", "rotate(-90)")
+  .attr("y", -60) // adjust for spacing from the axis
+  .attr("x", -heightDrawdown / 2)
+  .attr("dy", "1em")
+  .style("text-anchor", "middle")
+  .style("font-size", "16px")
+  .style("font-weight", "bold")
+  .text("Max Drawdown");
 
 
   // Legend
