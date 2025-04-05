@@ -29,4 +29,7 @@ window.onload = () => {
     const heading = document.getElementById('pfvalue-heading');
     heading.innerText = `Portfolio Value for: ${defaultSpyAlloc}% SPY and ${defaultBtcAlloc}% BTC`;
 
+    document.getElementById('allocation-btc-mdd').value = '';
+    document.getElementById('allocation-spy-mdd').value = '';
+
 };

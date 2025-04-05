@@ -39,7 +39,7 @@ function updateDrawdownChart(data) {
 
   // Upper Y scale
   const yValue = d3.scaleLinear()
-    .domain(d3.extent(parsedData, d => d.Combined)).nice()
+    .domain(d3.extent(parsedData, d => d.Combined)).nice()  // .domain([0, d3.max(parsedData, d => d.Combined)]).nice()
     .range([heightDrawdown, 0]);
 
   // Lower Y scale
@@ -60,7 +60,6 @@ function updateDrawdownChart(data) {
   // Lower chart Y-axis
   drawdown_chart_bottom.append("g")
     .call(d3.axisLeft(yDrawdown));
-
 
 
   // Y-axis label
@@ -138,7 +137,7 @@ function updateDrawdownChart(data) {
   drawdown_chart_bottom.append("path")
     .datum(parsedData)
     .attr("fill", "none")
-    .attr("stroke", "#4682b4")
+    .attr("stroke", "#8b0000") // Dark red
     .attr("stroke-width", 2)
     .attr("d", drawdownLine);
 
@@ -147,7 +146,7 @@ function updateDrawdownChart(data) {
   const tooltipLine = drawdown_chart_top.append("line")
       .attr("stroke", "#000")
       .attr("y1", 0)
-      .attr("y2", fullHeight)
+      .attr("y2", fullHeight-60)
       .attr("stroke-width", 1)
       .attr("stroke-dasharray", "3,3")
       .style("display", "none");
