@@ -3,7 +3,7 @@ const drawdown_svg = d3.select("#pf-mdd-plot"),
     marginDrawdown = { top: 20, right: 20, bottom: 20, left: 75 },
     fullWidth = +drawdown_svg.attr("width"),
     fullHeight = +drawdown_svg.attr("height"),
-    heightDrawdown = (fullHeight - marginDrawdown.top - marginDrawdown.bottom) / 2 - 30,
+    heightDrawdown = (fullHeight - marginDrawdown.top - marginDrawdown.bottom) / 2 ,
     widthDrawdown = fullWidth - marginDrawdown.left - marginDrawdown.right;
 
 drawdown_svg.selectAll("*").remove(); // Clear SVG on redraw
@@ -13,7 +13,7 @@ const drawdown_chart_top = drawdown_svg.append("g")
     .attr("transform", `translate(${marginDrawdown.left},${marginDrawdown.top})`);
 
 const drawdown_chart_bottom = drawdown_svg.append("g")
-    .attr("transform", `translate(${marginDrawdown.left},${marginDrawdown.top + heightDrawdown + 60})`);
+    .attr("transform", `translate(${marginDrawdown.left},${marginDrawdown.top + heightDrawdown})`);  // + 60
 
 function updateDrawdownChart(data) {
   // Format and clean data
@@ -37,28 +37,41 @@ function updateDrawdownChart(data) {
     .domain(d3.extent(parsedData, d => d.date))
     .range([0, widthDrawdown]);
 
+//////////////////////////////////////////
   // Upper Y scale
   const maxValueUpper = d3.max(parsedData, d => d.Combined);
   const minValueUpper = d3.min(parsedData, d => d.Combined);
   
-  const desiredTicksUpper = d3.ticks(minValueUpper, maxValueUpper, 5);
+
+  // const desiredTicksUpper = d3.ticks(minValueUpper, maxValueUpper, 5);
+  // const yValue = d3.scaleLinear()
+  //   .domain(d3.extent(parsedData, d => d.Combined)).nice()  // .domain([0, d3.max(parsedData, d => d.Combined)]).nice()
+  //   .range([heightDrawdown, 0]);
+
+  // // Lower Y scale
+  // const yDrawdown = d3.scaleLinear()
+  //   .domain([d3.min(parsedData, d => d.Rolling_Max_Drawdown_Pct), 0]).nice()
+  //   .range([heightDrawdown, 0]);
+
+
+  // Upper Y scale that starts at 0
+  const desiredTicksUpper = d3.ticks(0, maxValueUpper, 5);
   const yValue = d3.scaleLinear()
-    .domain(d3.extent(parsedData, d => d.Combined)).nice()  // .domain([0, d3.max(parsedData, d => d.Combined)]).nice()
-    .range([heightDrawdown, 0]);
+  .domain([0, d3.max(parsedData, d => d.Combined)]).nice()
+  .range([heightDrawdown, 0]);
+
+  const yDrawdown = d3.scaleLinear()
+    .domain([0.05, d3.min(parsedData, d => d.Rolling_Max_Drawdown_Pct)]) // From +5% to lowest drawdown (e.g., -0.3)
+    .range([0, heightDrawdown]);
 
   const yAxisUpper = d3.axisLeft(yValue)
     .tickValues(desiredTicksUpper);
 
-
-  // Lower Y scale
-  const yDrawdown = d3.scaleLinear()
-    .domain([d3.min(parsedData, d => d.Rolling_Max_Drawdown_Pct), 0]).nice()
-    .range([heightDrawdown, 0]);
-
+/////////////////////////////////////////////
 
   // Shared X-axis (placed between charts)
   drawdown_svg.append("g")
-    .attr("transform", `translate(${marginDrawdown.left},${marginDrawdown.top + heightDrawdown + 30})`)  // +0 for touching axes
+    .attr("transform", `translate(${marginDrawdown.left},${marginDrawdown.top + heightDrawdown + 0})`)  // +0 for touching axes
     .call(d3.axisBottom(x));
     
   // Upper Y-axis
@@ -68,8 +81,8 @@ function updateDrawdownChart(data) {
   // Lower chart Y-axis
   drawdown_chart_bottom.append("g")
   .call(
-      d3.axisLeft(yDrawdown)
-          .tickFormat(d => `${(d * 100).toFixed(0)}%`)
+    d3.axisLeft(yDrawdown)
+      .tickFormat(d => d === 0.05 ? "" : `${(d * 100).toFixed(0)}%`)  // hide the label for 5%
   );
 
   // Y-axis label
@@ -123,7 +136,7 @@ function updateDrawdownChart(data) {
   const tooltipLine = drawdown_chart_top.append("line")
       .attr("stroke", "#000")
       .attr("y1", 0)
-      .attr("y2", fullHeight-30)
+      .attr("y2", fullHeight - 30)
       .attr("stroke-width", 1)
       .attr("stroke-dasharray", "3,3")
       .style("display", "none");
