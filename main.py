@@ -28,8 +28,9 @@ async def game(request: Request):
     return templates.TemplateResponse("game.html", {"request": request})
 
 class AllocationInput(BaseModel):
-    spy_start: float
-    btc_start: float
+    spy_start: int
+    btc_start: int
+    window_size: int  
 
 @app.post("/api/update-portfolio")
 async def update_portfolio(alloc: AllocationInput):
@@ -48,7 +49,7 @@ async def update_portfolio(alloc: AllocationInput):
 async def update_portfolio_dd(alloc: AllocationInput):
     try:
         # Compute portfolio max drawdown
-        df = compute_portfolio_dd(alloc.spy_start, alloc.btc_start, window_size=30)
+        df = compute_portfolio_dd(alloc.spy_start, alloc.btc_start, alloc.window_size)
         print(df)
         # Convert DataFrame to JSON
         json_data = df.to_json(orient='records', date_format='iso')

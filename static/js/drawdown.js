@@ -201,6 +201,7 @@ fetch('/static/data/pf_dd_data.json')
 document.getElementById("update-portfolio-mdd-btn").addEventListener("click", () => {
   const btcInput = document.getElementById('allocation-btc-mdd').value.trim();
   const spyInput = document.getElementById('allocation-spy-mdd').value.trim();
+  const windowSize = parseInt(document.getElementById('ddSlider').value, 10); // <-- Get slider value
 
   const btcAllocation = parseInt(btcInput, 10);
   const spyAllocation = parseInt(spyInput, 10);
@@ -221,7 +222,7 @@ document.getElementById("update-portfolio-mdd-btn").addEventListener("click", ()
   fetch('/api/update-portfolio-dd', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ btc_start: btcAllocation, spy_start: spyAllocation })
+      body: JSON.stringify({ btc_start: btcAllocation, spy_start: spyAllocation, window_size: windowSize  })
   })
   .then(res => res.json())
   .then(result => {
@@ -250,7 +251,7 @@ document.getElementById('allocation-btc-mdd').addEventListener('keydown', handle
 document.getElementById('allocation-spy-mdd').addEventListener('keydown', handleEnterKeyToUpdateDD);
 
 
-const slider = document.getElementById('mySlider');
+const slider = document.getElementById('ddSlider');
 const output = document.getElementById('sliderValue');
 slider.addEventListener('input', function() {
   output.textContent = this.value;
