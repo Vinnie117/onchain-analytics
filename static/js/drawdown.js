@@ -18,11 +18,13 @@ const drawdown_chart_bottom = drawdown_svg.append("g")
 function updateDrawdownChart(data) {
   // Format and clean data
   const parsedData = data.map(d => ({
-      date: new Date(d.Date),
-      Combined: d.Portfolio_Value || 0,
-      Rolling_Max_Drawdown_Pct: d.Rolling_Max_Drawdown_Pct || 0
+    date: new Date(d.Date),
+    Combined: d.Portfolio_Value,
+    Rolling_Max_Drawdown_Pct: d.Rolling_Max_Drawdown_Pct === null || isNaN(d.Rolling_Max_Drawdown_Pct)
+      ? null
+      : d.Rolling_Max_Drawdown_Pct
   }));
-
+  
   // Clear previous chart
   drawdown_chart_top.selectAll("*").remove();
   drawdown_chart_bottom.selectAll("*").remove();
@@ -121,8 +123,10 @@ function updateDrawdownChart(data) {
 
   // Draw Drawdown line
   const drawdownLine = d3.line()
+    .defined(d => d.Rolling_Max_Drawdown_Pct !== null && !isNaN(d.Rolling_Max_Drawdown_Pct))
     .x(d => x(d.date))
     .y(d => yDrawdown(d.Rolling_Max_Drawdown_Pct));
+
 
   drawdown_chart_bottom.append("path")
     .datum(parsedData)

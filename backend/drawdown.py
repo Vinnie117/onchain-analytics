@@ -11,25 +11,36 @@ def windowed_view(x, window_size):
 
 
 def rolling_max_dd_pct(x, window_size, min_periods=1):
-    if min_periods < window_size:
-        pad = np.full(window_size - min_periods, x[0])
-        x = np.concatenate((pad, x))
+
+    # # padding
+    # if min_periods < window_size:
+    #     pad = np.full(window_size - min_periods, x[0])
+    #     x = np.concatenate((pad, x))
+
+    if len(x) < window_size:
+        return np.array([])  # Not enough data to compute any drawdown
+
     y = windowed_view(x, window_size)
     running_max_y = np.maximum.accumulate(y, axis=1)
     dd_pct = (y - running_max_y) / running_max_y
     return dd_pct.min(axis=1)
 
 
-def portfolio_rolling_max_dd_from_series(series, window_size, min_periods=1):
-    portfolio_drawdown_pct = rolling_max_dd_pct(series.values, window_size, min_periods)
+def portfolio_rolling_max_dd_from_series(series, window_size):
+    portfolio_drawdown_pct = rolling_max_dd_pct(series.values, window_size)
+    num_nans = len(series) - len(portfolio_drawdown_pct)
+    portfolio_dd_series = np.concatenate([
+        np.full(num_nans, np.nan),
+        portfolio_drawdown_pct
+    ])
+    
     portfolio_dd_df = pd.DataFrame({
         'Portfolio_Value': series,
-        'Rolling_Max_Drawdown_Pct': np.concatenate([
-            np.full(len(series) - len(portfolio_drawdown_pct), np.nan),
-            portfolio_drawdown_pct
-        ])
+        'Rolling_Max_Drawdown_Pct': portfolio_dd_series
     }, index=series.index)
-    return portfolio_dd_df 
+    
+    return portfolio_dd_df
+
 
 def compute_portfolio_dd(spy_start, btc_start, window_size):
     # # use static data for this case
