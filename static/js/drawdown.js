@@ -281,3 +281,54 @@ document.getElementById('pf-mdd-download').addEventListener('click', () => {
         document.body.removeChild(a);
     }).catch(error => console.error('Error loading CSS:', error));
 });
+
+
+document.getElementById("ddSlider").addEventListener("change", () => {
+  const defaultSpyAllocMdd = 97;
+  const defaultBtcAllocMdd = 3;
+
+  const btcInputRaw = document.getElementById('allocation-btc-mdd').value.trim();
+  const spyInputRaw = document.getElementById('allocation-spy-mdd').value.trim();
+  const windowSize = parseInt(document.getElementById('ddSlider').value, 10);
+
+  let btcAllocation = parseInt(btcInputRaw, 10);
+  let spyAllocation = parseInt(spyInputRaw, 10);
+
+  // Use defaults if both are NaN
+  if (isNaN(btcAllocation) && isNaN(spyAllocation)) {
+    btcAllocation = defaultBtcAllocMdd;
+    spyAllocation = defaultSpyAllocMdd;
+  } else if (
+    isNaN(btcAllocation) || isNaN(spyAllocation) ||
+    btcInputRaw.includes('.') || spyInputRaw.includes('.')
+  ) {
+    alert('Please enter valid integer allocations, or leave both empty to use defaults.');
+    return;
+  }
+
+  if (btcAllocation + spyAllocation !== 100) {
+    alert('Allocations must sum to exactly 100. Use integers.');
+    return;
+  }
+
+  fetch('/api/update-portfolio-dd', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ btc_start: btcAllocation, spy_start: spyAllocation, window_size: windowSize })
+  })
+  .then(res => res.json())
+  .then(result => {
+    if (result.status === "success") {
+      updateDrawdownChart(result.data);
+    } else {
+      alert("Error calculating portfolio. Check server logs.");
+    }
+  })
+  .catch(err => {
+    console.error("Fetch error:", err);
+    alert("Error updating portfolio data.");
+  });
+
+  const heading = document.getElementById('pf-mdd-heading');
+  heading.innerText = `Portfolio Value and Max Drawdown for: ${spyAllocation}% SPY and ${btcAllocation}% BTC`;
+});
