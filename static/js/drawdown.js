@@ -238,7 +238,7 @@ document.getElementById("update-portfolio-mdd-btn").addEventListener("click", ()
   });
   // //Update heading with new values
   const heading = document.getElementById('pf-mdd-heading');
-  heading.innerText = `Portfolio Value and Max Drawdown for: ${spyAllocation}% SPY and ${btcAllocation}% BTC`;
+  heading.innerText = `Portfolio Value and ${windowSize}-day Max Drawdown for: ${spyAllocation}% SPY and ${btcAllocation}% BTC`;
 });
 
 // Enter button
@@ -330,5 +330,5 @@ document.getElementById("ddSlider").addEventListener("change", () => {
   });
 
   const heading = document.getElementById('pf-mdd-heading');
-  heading.innerText = `Portfolio Value and Max Drawdown for: ${spyAllocation}% SPY and ${btcAllocation}% BTC`;
+  heading.innerText = `Portfolio Value and ${windowSize}-day Max Drawdown for: ${spyAllocation}% SPY and ${btcAllocation}% BTC`;
 });

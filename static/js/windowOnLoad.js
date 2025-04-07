@@ -34,8 +34,9 @@ window.onload = () => {
     document.getElementById('allocation-spy-mdd').value = '';
     const defaultSpyAllocMdd = 97;
     const defaultBtcAllocMdd = 3;
+    const defaultWindowSlider = 30;
     const headingMdd = document.getElementById('pf-mdd-heading');
-    headingMdd.innerText = `Portfolio Value and Max Drawdown for: ${defaultSpyAllocMdd}% SPY and ${defaultBtcAllocMdd}% BTC`;
+    headingMdd.innerText = `Portfolio Value and ${defaultWindowSlider}-day Max Drawdown for: ${defaultSpyAllocMdd}% SPY and ${defaultBtcAllocMdd}% BTC`;
 
 
 
